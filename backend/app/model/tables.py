@@ -18,8 +18,15 @@ position = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
     sqlalchemy.Column("name", sqlalchemy.String(50), nullable=False),
-    sqlalchemy.Column("employment_type", sqlalchemy.Enum(EmploymentType), default=EmploymentType.analyst, nullable=False),
-    sqlalchemy.Column("created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False),
+    sqlalchemy.Column(
+        "employment_type",
+        sqlalchemy.Enum(EmploymentType),
+        default=EmploymentType.analyst,
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
+    ),
     sqlalchemy.Column(
         "updated_at",
         sqlalchemy.DateTime,
@@ -171,5 +178,5 @@ position = sqlalchemy.Table(
     ),
 )
 """
-#metadata.drop_all(bind=engine)
+# metadata.drop_all(bind=engine)
 metadata.create_all(bind=engine)
