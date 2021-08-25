@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.resource import position
+from app.model import database
 
 
 def create_app():
@@ -8,10 +8,8 @@ def create_app():
         version="0.1.0",
         description="Backend para gerenciamento de orçamento.",
     )
-    position.init_app(app=app)
+    database.init_app(app=app)
     return app
 
 
-if __name__ == "app.main":
-    app = create_app()
-
+app = create_app()
