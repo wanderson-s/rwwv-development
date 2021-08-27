@@ -1,18 +1,14 @@
 from databases import Database
 from fastapi import FastAPI
+from sqlalchemy import create_engine, MetaData as MD
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from app.config.settings import settings
-from app.model.tables import create_table
 
-db = Database(settings.database_uri)
+Engine = create_engine(settings.database_uri)
 
+Session = sessionmaker(autocommit=True, autoflush=True, bind=Engine)
 
-def init_app(app: FastAPI):
-    @app.on_event("startup")
-    async def startup():
-        await db.connect()
+MetaData = MD()
 
-    @app.on_event("shutdown")
-    async def shutdown():
-        await db.disconnect()
-
-    # create_table()
+Base = declarative_base(bind=Engine, metadata=MetaData)
