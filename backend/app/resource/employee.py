@@ -31,4 +31,11 @@ def init_app(app: FastAPI):
     async def get_employees(id: int, db: Session = Depends(get_db)):
         return employee.select_employee_by_id(id=id, db=db)
 
+    @router.get("/employees", response_model=BaseModelEmployee)
+    async def get_employees_by_email(
+        email: str = Query(..., regex="^[a-z0-9.]+@taimin\.com\.br"),
+        db: Session = Depends(get_db),
+    ):
+        return employee.select_employee_by_email(email=email, db=db)
+
     app.include_router(router=router, prefix=settings.api_v1, tags=["Employee"])
