@@ -40,9 +40,7 @@ class Employee(Base):
     can_read_budget = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     # datetime
-    created_at = sqlalchemy.Column(
-        sqlalchemy.DateTime, default=datetime.now, nullable=False
-    )
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -68,9 +66,7 @@ class Token(Base):  # relationship Employees <- 1 - N -> Tokens
         nullable=False,
     )
     # datetime
-    created_at = sqlalchemy.Column(
-        sqlalchemy.DateTime, default=datetime.now, nullable=False
-    )
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -94,9 +90,7 @@ class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
     name = sqlalchemy.Column(sqlalchemy.String(300), nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     # datetime
-    created_at = sqlalchemy.Column(
-        sqlalchemy.DateTime, default=datetime.now, nullable=False
-    )
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -114,6 +108,75 @@ class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
 
 
 # CREATING ...
+class Budget(Base):
+    __tablename__ = "budget"
+    # default
+    id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
+    january = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    february = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    march = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    april = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    may = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    june = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    july = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    august = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    september = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    october = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    november = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    december = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    total = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
+    type = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)
+    description = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+    comment = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+
+    # datetime
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    updated_at = sqlalchemy.Column(
+        sqlalchemy.DateTime,
+        default=datetime.now,
+        onupdate=datetime.now,
+        nullable=False,
+    )
+    # fks
+    fk_id_bu = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    # fks
+    fk_id_approver = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    # relationship
+
+
+class StatusBudget(Base):
+    __tablename__ = "status_budget"
+    # default
+    id = sqlalchemy.Column(sqlalchemy.Biginteger, primary_key=True, autoincrement=True)
+    status = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)
+    approved = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
+    current = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
+
+    # datetime
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    updated_at = sqlalchemy.Column(
+        sqlalchemy.DateTime,
+        default=datetime.now,
+        onupdate=datetime.now,
+        nullable=False,
+    )
+    # fks
+    fk_id_budget = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+
+"""
 class Budget(Base):
     __tablename__ = "budget"
     id = (
@@ -230,13 +293,14 @@ StatusBudget = sqlalchemy.Table(
         name="fk_status_budget_budget_id",
     ),
 )
+"""
 
 
 def create_table():
     engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
-    metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
 
 def drop_table():
     engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
-    metadata.drop_all(bind=engine, checkfirst=True)
+    Base.metadata.drop_all(bind=engine, checkfirst=True)
