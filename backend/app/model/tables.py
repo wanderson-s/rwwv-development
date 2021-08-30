@@ -1,5 +1,6 @@
 import enum
 import sqlalchemy
+from fastapi import FastAPI
 from datetime import datetime, timedelta
 from app.config.settings import settings
 from app.model.database import Base
@@ -24,7 +25,7 @@ class Employee(Base):
     __tablename__ = "employees"
     # access
     id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
-    email = sqlalchemy.Column(sqlalchemy.String(256), nullable=True)
+    email = sqlalchemy.Column(sqlalchemy.String(256), nullable=True, unique=True)
     password = sqlalchemy.Column(sqlalchemy.String(32), nullable=True)
     active = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     # personal
@@ -84,7 +85,9 @@ class Token(Base):  # relationship Employees <- 1 - N -> Tokens
         nullable=False,
     )
     # relationship
-    user = sqlalchemy.orm.relationship("Employee", back_populates="tokens")
+    user = sqlalchemy.orm.relationship(
+        "Employee", back_populates="tokens", uselist=False
+    )
 
 
 class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
@@ -110,133 +113,21 @@ class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
         nullable=False,
     )
     # relationship
-    employee = sqlalchemy.orm.relationship("Employee", back_populates="bu")
-
-
-# CREATING ...
-class Budget(Base):
-    __tablename__ = "budget"
-    id = (
-        sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
+    employee = sqlalchemy.orm.relationship(
+        "Employee", back_populates="bu", uselist=False
     )
-    fk_id_employees = (sqlalchemy.Column(sqlalchemy.BigInteger, nullable=False),)
-    fk_id_business_unit = (sqlalchemy.Column(sqlalchemy.BigInteger, nullable=False),)
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    )
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    )
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_employees"],
-        refcolumns=["employees.id"],
-        name="fk_budget_employees_id",
-    )
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_business_unit"],
-        refcolumns=["business_unit.id"],
-        name="fk_budget_business_unit_id",
-    )
-
-
-BaseBudget = sqlalchemy.Table(
-    "base_budget",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
-    sqlalchemy.Column("january", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("february", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("march", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("april", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("may", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("june", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("july", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("august", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("september", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("october", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("november", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("december", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("total", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("type", sqlalchemy.String(50), nullable=False),
-    sqlalchemy.Column("description", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("comment", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("fk_id_budget", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    ),
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_budget"],
-        refcolumns=["budget.id"],
-        name="fk_base_budget_budget_id",
-    ),
-)
-
-Approver = sqlalchemy.Table(
-    "approvers",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, nullable=True),
-    sqlalchemy.Column("fk_id_budget", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column("fk_id_employees", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    ),
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_budget"], refcolumns=["budget.id"], name="fk_approvers_budget_id"
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_employees"],
-        refcolumns=["employees.id"],
-        name="fk_approvers_employees_id",
-    ),
-)
-
-StatusBudget = sqlalchemy.Table(
-    "status_budget",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
-    sqlalchemy.Column("status", sqlalchemy.String(50), nullable=False),
-    sqlalchemy.Column("approved", sqlalchemy.Boolean, nullable=False),
-    sqlalchemy.Column("fk_id_budget", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    ),
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_budget"],
-        refcolumns=["budget.id"],
-        name="fk_status_budget_budget_id",
-    ),
-)
 
 
 def create_table():
     engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
-    metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
 
 def drop_table():
     engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
-    metadata.drop_all(bind=engine, checkfirst=True)
+    Base.metadata.drop_all(bind=engine, checkfirst=True)
+
+
+def init_app(app: FastAPI):
+    # drop_table()
+    create_table()
