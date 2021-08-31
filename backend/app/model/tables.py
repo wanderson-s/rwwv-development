@@ -40,7 +40,9 @@ class Employee(Base):
     can_read_budget = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     # datetime
-    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -49,7 +51,8 @@ class Employee(Base):
     )
     # relationship back_populates
     tokens = sqlalchemy.orm.relationship("Token", back_populates="user")
-    bu = sqlalchemy.orm.relationship("BusinessUnit", back_populates="employee")
+    business = sqlalchemy.orm.relationship("BusinessUnit", back_populates="employee")
+    budget = sqlalchemy.orm.relationship("Budget", back_populates="approver")
 
 
 class Token(Base):  # relationship Employees <- 1 - N -> Tokens
@@ -66,7 +69,9 @@ class Token(Base):  # relationship Employees <- 1 - N -> Tokens
         nullable=False,
     )
     # datetime
-    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -80,7 +85,9 @@ class Token(Base):  # relationship Employees <- 1 - N -> Tokens
         nullable=False,
     )
     # relationship
-    user = sqlalchemy.orm.relationship("Employee", back_populates="tokens")
+    user = sqlalchemy.orm.relationship(
+        "Employee", back_populates="tokens", uselist=False
+    )
 
 
 class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
@@ -90,7 +97,9 @@ class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
     name = sqlalchemy.Column(sqlalchemy.String(300), nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     # datetime
-    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -98,18 +107,46 @@ class BusinessUnit(Base):  # relationship Employees <- 1 - N -> BU
         nullable=False,
     )
     # fks
-    fk_id_employee = sqlalchemy.Column(
+    fk_id_employees = sqlalchemy.Column(
         sqlalchemy.BigInteger,
         sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
         nullable=False,
     )
     # relationship
-    employee = sqlalchemy.orm.relationship("Employee", back_populates="bu")
+    employee = sqlalchemy.orm.relationship(
+        "Employee", back_populates="business", uselist=False
+    )
+    base = sqlalchemy.orm.relationship("BaseBudget", back_populates="business")
 
 
-# CREATING ...
 class Budget(Base):
     __tablename__ = "budget"
+    id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
+    name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
+    # datetime
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
+    updated_at = sqlalchemy.Column(
+        sqlalchemy.DateTime,
+        default=datetime.now,
+        onupdate=datetime.now,
+        nullable=False,
+    )
+    # fks
+    fk_id_approver = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    # relationship
+    approver = sqlalchemy.orm.relationship("Employee", back_populates="budget")
+    status = sqlalchemy.orm.relationship("StatusBudget", back_populates="budget")
+    base = sqlalchemy.orm.relationship("BaseBudget", back_populates="budget")
+
+
+class BaseBudget(Base):
+    __tablename__ = "base_budget"
     # default
     id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
     january = sqlalchemy.Column(sqlalchemy.Numeric(18, 2), nullable=False)
@@ -130,7 +167,9 @@ class Budget(Base):
     comment = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
 
     # datetime
-    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -138,30 +177,36 @@ class Budget(Base):
         nullable=False,
     )
     # fks
-    fk_id_bu = sqlalchemy.Column(
+    fk_id_business_unit = sqlalchemy.Column(
         sqlalchemy.BigInteger,
-        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("business_unit.id", ondelete="CASCADE"),
         nullable=False,
     )
-    # fks
-    fk_id_approver = sqlalchemy.Column(
+
+    fk_id_budget = sqlalchemy.Column(
         sqlalchemy.BigInteger,
-        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("budget.id", ondelete="CASCADE"),
         nullable=False,
     )
     # relationship
+    budget = sqlalchemy.orm.relationship("Budget", back_populates="base", uselist=False)
+    business = sqlalchemy.orm.relationship(
+        "BusinessUnit", back_populates="base", uselist=False
+    )
 
 
 class StatusBudget(Base):
     __tablename__ = "status_budget"
     # default
-    id = sqlalchemy.Column(sqlalchemy.Biginteger, primary_key=True, autoincrement=True)
+    id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
     status = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)
     approved = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
     current = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
 
     # datetime
-    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
     updated_at = sqlalchemy.Column(
         sqlalchemy.DateTime,
         default=datetime.now,
@@ -174,126 +219,10 @@ class StatusBudget(Base):
         sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
         nullable=False,
     )
-
-
-"""
-class Budget(Base):
-    __tablename__ = "budget"
-    id = (
-        sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
+    # relationship
+    budget = sqlalchemy.orm.relationship(
+        "Budget", back_populates="status", uselist=False
     )
-    fk_id_employees = (sqlalchemy.Column(sqlalchemy.BigInteger, nullable=False),)
-    fk_id_business_unit = (sqlalchemy.Column(sqlalchemy.BigInteger, nullable=False),)
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    )
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    )
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_employees"],
-        refcolumns=["employees.id"],
-        name="fk_budget_employees_id",
-    )
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_business_unit"],
-        refcolumns=["business_unit.id"],
-        name="fk_budget_business_unit_id",
-    )
-
-
-BaseBudget = sqlalchemy.Table(
-    "base_budget",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
-    sqlalchemy.Column("january", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("february", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("march", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("april", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("may", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("june", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("july", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("august", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("september", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("october", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("november", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("december", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("total", sqlalchemy.Numeric(18, 2), nullable=False),
-    sqlalchemy.Column("type", sqlalchemy.String(50), nullable=False),
-    sqlalchemy.Column("description", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("comment", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("fk_id_budget", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    ),
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_budget"],
-        refcolumns=["budget.id"],
-        name="fk_base_budget_budget_id",
-    ),
-)
-
-Approver = sqlalchemy.Table(
-    "approvers",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, nullable=True),
-    sqlalchemy.Column("fk_id_budget", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column("fk_id_employees", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    ),
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_budget"], refcolumns=["budget.id"], name="fk_approvers_budget_id"
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_employees"],
-        refcolumns=["employees.id"],
-        name="fk_approvers_employees_id",
-    ),
-)
-
-StatusBudget = sqlalchemy.Table(
-    "status_budget",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.BigInteger, primary_key=True, autoincrement=True),
-    sqlalchemy.Column("status", sqlalchemy.String(50), nullable=False),
-    sqlalchemy.Column("approved", sqlalchemy.Boolean, nullable=False),
-    sqlalchemy.Column("fk_id_budget", sqlalchemy.BigInteger, nullable=False),
-    sqlalchemy.Column(
-        "created_at", sqlalchemy.DateTime, default=datetime.now, nullable=False
-    ),
-    sqlalchemy.Column(
-        "updated_at",
-        sqlalchemy.DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-        nullable=False,
-    ),
-    sqlalchemy.ForeignKeyConstraint(
-        columns=["fk_id_budget"],
-        refcolumns=["budget.id"],
-        name="fk_status_budget_budget_id",
-    ),
-)
-"""
 
 
 def create_table():
