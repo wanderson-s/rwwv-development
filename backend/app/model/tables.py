@@ -1,5 +1,6 @@
 import enum
 import sqlalchemy
+from fastapi import FastAPI
 from datetime import datetime, timedelta
 from app.config.settings import settings
 from app.model.database import Base
@@ -24,7 +25,7 @@ class Employee(Base):
     __tablename__ = "employees"
     # access
     id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
-    email = sqlalchemy.Column(sqlalchemy.String(256), nullable=True)
+    email = sqlalchemy.Column(sqlalchemy.String(256), nullable=True, unique=True)
     password = sqlalchemy.Column(sqlalchemy.String(32), nullable=True)
     active = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     # personal

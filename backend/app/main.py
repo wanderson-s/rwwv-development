@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.config import cors
-from app.resource import auth
+from app.resource import employee
+from app.model import tables
 
 
 def create_app():
@@ -10,7 +11,8 @@ def create_app():
         description="Backend para gerenciamento de orçamento.",
     )
     cors.init_app(app=app)
-    auth.init_app(app=app)
+    tables.init_app(app=app)
+    employee.init_app(app=app)
     return app
 
 
