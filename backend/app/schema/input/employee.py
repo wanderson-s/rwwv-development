@@ -1,17 +1,17 @@
 from datetime import date
 from pydantic import BaseModel
-from app.model.tables import EmploymentType
+from app.model.enum import EnumEmploymentType
 
 
 class BaseEmployeeNoPassword(BaseModel):
     email: str = None
     active: bool = False
     # personal
-    cpf: str
+    # cpf: str
     first_name: str
     last_name: str
     birth_date: date = None
-    position: EmploymentType
+    position: EnumEmploymentType
     # permission
     can_simulate_budget: bool = False
     can_submit_budget: bool = False

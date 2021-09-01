@@ -13,7 +13,7 @@ MetaData = MD()
 
 Base = declarative_base(bind=Engine, metadata=MetaData)
 
-# Dependency
+# Dependency Injection
 def get_db():
     db = Session()
     try:
