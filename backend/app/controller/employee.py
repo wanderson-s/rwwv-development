@@ -5,7 +5,7 @@ from starlette import status
 from app.model.tables import Employee
 
 # INPUT
-from app.schema.input.employee import BaseEmployee
+from app.schema.input.employee import BaseEmployee, BaseEmployeeToUpdate
 
 # OUTPUT
 from app.schema.output.employee import BaseModelEmployee
@@ -35,3 +35,33 @@ def select_employee_by_email(
     if ilike:
         return db.query(Employee).filter(Employee.email.ilike((f"%{email}%"))).first()
     return db.query(Employee).filter(Employee.email == email).first()
+
+
+def update_employee(
+    id: int, empl: BaseEmployeeToUpdate, db: Session
+) -> BaseModelEmployee:
+    user = select_employee_by_id(id=id, db=db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+        )
+    row = empl.dict(exclude_none=True)
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_206_PARTIAL_CONTENT, detail="No data to change."
+        )
+    db.query(Employee).filter(Employee.id == id).update(row, synchronize_session=False)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def delete_employee(id: int, db: Session) -> BaseModelEmployee:
+    if not select_employee_by_id(id=id, db=db):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+        )
+    employee = db.query(Employee).filter(Employee.id == id).first()
+    db.delete(employee)
+    db.commit()
+    return employee

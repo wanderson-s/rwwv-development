@@ -25,3 +25,21 @@ class BaseEmployee(BaseEmployeeNoPassword):
 
     class Config:
         orm_mode = True
+
+
+class BaseEmployeeToUpdate(BaseEmployee):
+    email: str = None
+    password: str = None
+    active: bool = None
+    # personal
+    # cpf: str
+    first_name: str = None
+    last_name: str = None
+    birth_date: date = None
+    position: EnumEmploymentType = None
+    # permission
+    can_simulate_budget: bool = None
+    can_submit_budget: bool = None
+    can_approve_budget: bool = None
+    can_read_budget: bool = None
+    is_admin: bool = None

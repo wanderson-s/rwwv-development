@@ -10,7 +10,7 @@ from app.controller import employee
 from app.model.database import get_db
 
 # INPUT
-from app.schema.input.employee import BaseEmployee
+from app.schema.input.employee import BaseEmployee, BaseEmployeeToUpdate
 
 # OUTPUT
 from app.schema.output.employee import BaseModelEmployee
@@ -37,5 +37,15 @@ def init_app(app: FastAPI):
         db: Session = Depends(get_db),
     ):
         return employee.select_employee_by_email(email=email, db=db)
+
+    @router.patch("/employees/{id}", response_model=BaseModelEmployee)
+    async def patch_employees(
+        id: int, empl: BaseEmployeeToUpdate, db: Session = Depends(get_db)
+    ):
+        return employee.update_employee(id=id, empl=empl, db=db)
+
+    @router.delete("/employees/{id}", response_model=BaseModelEmployee)
+    async def delete_employees(id: int, db: Session = Depends(get_db)):
+        return employee.delete_employee(id=id, db=db)
 
     app.include_router(router=router, prefix=settings.api_v1, tags=["Employee"])
