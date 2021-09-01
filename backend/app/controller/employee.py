@@ -25,7 +25,8 @@ def insert_employee(empl: BaseEmployee, db: Session) -> BaseModelEmployee:
 
 
 def select_employee_by_id(id: int, db: Session) -> BaseModelEmployee:
-    return db.query(Employee).filter(Employee.id == id).first()
+    data = db.query(Employee).filter(Employee.id == id).first()
+    return data
 
 
 def select_employee_by_email(

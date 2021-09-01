@@ -147,12 +147,12 @@ class Budget(Base):
     fk_id_approver = sqlalchemy.Column(
         sqlalchemy.BigInteger,
         sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
     )
     # relationship
     approver = sqlalchemy.orm.relationship("Employee", back_populates="budget")
     status = sqlalchemy.orm.relationship("StatusBudget", back_populates="budget")
-    moth = sqlalchemy.orm.relationship("Month", back_populates="budget")
+    month = sqlalchemy.orm.relationship("Month", back_populates="budget")
 
 
 # Month N - 1 Budget
@@ -224,7 +224,7 @@ class StatusBudget(Base):
     # fks
     fk_id_budget = sqlalchemy.Column(
         sqlalchemy.BigInteger,
-        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("budget.id", ondelete="CASCADE"),
         nullable=False,
     )
     # relationship
@@ -251,6 +251,6 @@ def insert():
 
 
 def init_app(app: FastAPI):
-    drop_table()
+    # drop_table()
     create_table()
-    insert()
+    # insert()

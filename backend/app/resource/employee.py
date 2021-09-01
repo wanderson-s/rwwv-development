@@ -21,10 +21,10 @@ def init_app(app: FastAPI):
 
     @router.post(
         "/employees",
-        response_model=BaseModelEmployee,
+        response_model=BaseModelEmployee,  # OUTPUT
         status_code=status.HTTP_201_CREATED,
     )
-    async def post_employees(empl: BaseEmployee, db: Session = Depends(get_db)):
+    async def post_employees(empl: BaseEmployee, db: Session = Depends(get_db)):  # INPUT
         return employee.insert_employee(empl=empl, db=db)
 
     @router.get("/employees/{id}", response_model=BaseModelEmployee)
