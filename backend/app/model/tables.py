@@ -1,6 +1,6 @@
 import sqlalchemy
 from fastapi import FastAPI
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from app.config.settings import settings
 from app.model.database import Base
@@ -63,14 +63,10 @@ class Token(Base):
     __tablename__ = "token"
     # default
     id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
-    authoration = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
-    refresh = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+    access_token = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+    refresh_token = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     enable = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=True)
-    expiration = sqlalchemy.Column(
-        sqlalchemy.DateTime,
-        default=lambda: (datetime + timedelta(hours=1)),
-        nullable=False,
-    )
+    exp = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
     # datetime
     created_at = sqlalchemy.Column(
         sqlalchemy.DateTime, default=datetime.now, nullable=False

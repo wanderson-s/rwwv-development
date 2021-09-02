@@ -45,6 +45,8 @@ def update_employee(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
         )
+    if empl.password:
+        empl.password = md5(empl.password.encode()).hexdigest()
     row = empl.dict(exclude_none=True)
     if not row:
         raise HTTPException(
@@ -62,6 +64,11 @@ def delete_employee(id: int, db: Session) -> BaseModelEmployee:
             status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
         )
     employee = db.query(Employee).filter(Employee.id == id).first()
+    if employee.business:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Problem to exclude, the employee has a Business Unit.",
+        )
     db.delete(employee)
     db.commit()
     return employee

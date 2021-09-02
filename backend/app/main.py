@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.config import cors
 from app.resource import employee
 from app.resource import bu
+from app.resource import auth
 from app.model import tables
 
 
@@ -15,6 +16,7 @@ def create_app():
     tables.init_app(app=app)
     employee.init_app(app=app)
     bu.init_app(app=app)
+    auth.init_app(app=app)
     return app
 
 

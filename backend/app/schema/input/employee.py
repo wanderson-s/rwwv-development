@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.model.enum import EnumEmploymentType
 
 
@@ -28,9 +28,11 @@ class BaseEmployee(BaseEmployeeNoPassword):
 
 
 class BaseEmployeeToUpdate(BaseEmployee):
-    email: str = None
-    password: str = None
-    active: bool = None
+    email: str = Field(None, regex="^[a-z0-9.]+@taimin\.com\.br")
+    password: str = Field(
+        None, regex="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+    )
+    active: bool = False
     # personal
     # cpf: str
     first_name: str = None
