@@ -36,6 +36,7 @@ class Employee(Base):
     birth_date = sqlalchemy.Column(sqlalchemy.Date, nullable=True)
     position = sqlalchemy.Column(sqlalchemy.Enum(EnumEmploymentType), nullable=False)
     # permission
+    first_access = sqlalchemy.Column(sqlalchemy.Boolean, default=True, nullable=True)
     active = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     can_simulate_budget = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     can_submit_budget = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
@@ -55,7 +56,10 @@ class Employee(Base):
     # relationship back_populates
     tokens = sqlalchemy.orm.relationship("Token", back_populates="user")
     business = sqlalchemy.orm.relationship("BusinessUnit", back_populates="employee")
-    budget = sqlalchemy.orm.relationship("Budget", back_populates="approver")
+    budget = sqlalchemy.orm.relationship("Budget", back_populates="employee")
+    approver = sqlalchemy.orm.relationship(
+        "Approver", back_populates="approver", uselist=False
+    )
 
 
 # Token N - 1 Employee
@@ -140,15 +144,20 @@ class Budget(Base):
         nullable=False,
     )
     # fks
-    fk_id_approver = sqlalchemy.Column(
+    fk_id_employees = sqlalchemy.Column(
         sqlalchemy.BigInteger,
         sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
-        nullable=True,
+        nullable=False,
     )
     # relationship
-    approver = sqlalchemy.orm.relationship("Employee", back_populates="budget")
+    employee = sqlalchemy.orm.relationship(
+        "Employee", back_populates="budget", uselist=False
+    )
     status = sqlalchemy.orm.relationship("StatusBudget", back_populates="budget")
     month = sqlalchemy.orm.relationship("Month", back_populates="budget")
+    approver = sqlalchemy.orm.relationship(
+        "Approver", back_populates="budget", uselist=False
+    )
 
 
 # Month N - 1 Budget
@@ -226,6 +235,36 @@ class StatusBudget(Base):
     # relationship
     budget = sqlalchemy.orm.relationship(
         "Budget", back_populates="status", uselist=False
+    )
+
+
+class Approver(Base):
+    __tablename__ = "approver"
+    id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
+    updated_at = sqlalchemy.Column(
+        sqlalchemy.DateTime,
+        default=datetime.now,
+        onupdate=datetime.now,
+        nullable=False,
+    )
+    # fks
+    fk_id_budget = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        sqlalchemy.ForeignKey("budget.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    fk_id_approver = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        sqlalchemy.ForeignKey("employees.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    # relationship
+    budget = sqlalchemy.orm.relationship("Budget", back_populates="approver")
+    approver = sqlalchemy.orm.relationship(
+        "Employee", back_populates="approver", uselist=False
     )
 
 
