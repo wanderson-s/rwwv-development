@@ -3,7 +3,8 @@ from fastapi import HTTPException, status
 from datetime import datetime, timedelta
 from uuid import uuid1
 from sqlalchemy.orm.session import Session
-import jwt
+
+# import jwt
 
 from app.config.settings import settings
 from app.model.tables import Employee, insert
@@ -55,9 +56,7 @@ def create_token(employee: Employee, db: Session):
 
 
 def get_token_enable(id: int, db: Session):
-    data = (
-        db.query(Token).filter(Token.fk_id_employees == id, Token.enable == True).first()
-    )
+    data = db.query(Token).filter(Token.fk_id_employees == id, Token.enable == True).first()
     if data and data.exp > datetime.utcnow():
         return data
     return {}
@@ -83,9 +82,7 @@ def generate_token(user: BaseLogin, db: Session) -> BaseModelTokens:
 
 def refresh_token(refresh_token: str, db: Session) -> BaseModelTokens:
     token = (
-        db.query(Token)
-        .filter(Token.refresh_token == refresh_token, Token.enable == True)
-        .first()
+        db.query(Token).filter(Token.refresh_token == refresh_token, Token.enable == True).first()
     )
     if not token:
         raise HTTPException(
@@ -101,7 +98,5 @@ def refresh_token(refresh_token: str, db: Session) -> BaseModelTokens:
 def check_token(access_token: str, db: Session) -> bool:
     token = db.query(Token).filter(Token.access_token == access_token).first()
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token.")
     ...
