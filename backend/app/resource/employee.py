@@ -1,6 +1,6 @@
 from typing import List, Union
 from app.common.headers import decode_token_is_admin
-from app.common.response import UNAUTHORIZED_401
+from app.common.response import BAD_REQUEST_400, PARTIAL_CONTENT_206, UNAUTHORIZED_401
 from app.config.settings import settings
 from app.controller import employee
 from app.model.database import get_db
@@ -24,6 +24,7 @@ def init_app(app: FastAPI):
         "/employees",
         response_model=BaseModelEmployee,
         status_code=status.HTTP_201_CREATED,
+        responses=BAD_REQUEST_400,
     )
     async def post_employees(empl: BaseEmployee, db: Session = Depends(get_db)):
         return employee.insert_employee(empl=empl, db=db)
@@ -43,13 +44,19 @@ def init_app(app: FastAPI):
             return employee.select_employee_by_email(email=email, db=db)
         return employee.select_employee_all(db=db)
 
-    @router.patch("/employees/{id}", response_model=BaseModelEmployee)
+    @router.patch(
+        "/employees/{id}",
+        response_model=BaseModelEmployee,
+        responses={**BAD_REQUEST_400, **PARTIAL_CONTENT_206},
+    )
     async def patch_employees(
         id: int, empl: BaseEmployeeToUpdate, db: Session = Depends(get_db)
     ):
         return employee.update_employee(id=id, empl=empl, db=db)
 
-    @router.delete("/employees/{id}", response_model=BaseModelEmployee)
+    @router.delete(
+        "/employees/{id}", response_model=BaseModelEmployee, responses=BAD_REQUEST_400
+    )
     async def delete_employees(id: int, db: Session = Depends(get_db)):
         return employee.delete_employee(id=id, db=db)
 

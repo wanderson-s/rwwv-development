@@ -18,7 +18,7 @@ BAD_REQUEST_400 = {
 }
 
 UNAUTHORIZED_401 = {
-    status.HTTP_401_UNAUTHORIZED: {"model": Base, "description": "Invalid data."}
+    status.HTTP_401_UNAUTHORIZED: {"model": Base, "description": "Unauthorized"}
 }
 
 CKECK_TOKEN = {**OK_200, **PARTIAL_CONTENT_206, **BAD_REQUEST_400}

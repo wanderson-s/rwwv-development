@@ -17,8 +17,16 @@ class BaseModelBudget(BaseBudget):
         allow_population_by_field_name = True
 
 
-class BaseModelBudgetEmployee(BaseModelEmployee):
-    budget: List[BaseModelBudget] = Field([], alias="budget_employee")
+class BaseModelBudgetsEmployee(BaseModelEmployee):
+    budget: List[BaseModelBudget] = Field([], alias="budgets")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
+
+class BaseModelBudgetEmployee(BaseModelBudget):
+    employee: BaseModelEmployee
 
     class Config:
         orm_mode = True
