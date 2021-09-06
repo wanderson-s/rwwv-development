@@ -3,20 +3,13 @@ from fastapi import HTTPException
 from starlette import status
 from app.model.tables import BusinessUnit
 from app.model.tables import Employee
+from app.controller.employee import select_employee_by_id
 
 # INPUT
 from app.schema.input.bu import BaseBu, BaseBuToUpdate
 
 # OUTPUT
 from app.schema.output.bu import BaseModelBu, BaseModelBus
-
-
-def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
-    bu = BusinessUnit(**buss_u.dict())
-    db.add(bu)
-    db.commit()
-    db.refresh(bu)
-    return bu
 
 
 def select_bu(id: int, db: Session) -> BaseModelBu:
@@ -28,16 +21,43 @@ def select_bu_by_employee_id(employee_id: int, db: Session) -> BaseModelBus:
     return data
 
 
+def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
+    if not select_employee_by_id(id=buss_u.fk_id_employees, db=db):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Employee id does not exists.",
+        )
+    if (
+        db.query(BusinessUnit)
+        .filter(BusinessUnit.name == buss_u.name, BusinessUnit.product == buss_u.product)
+        .first()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bu and product already exists.",
+        )
+    bu = BusinessUnit(**buss_u.dict(by_alias=False))
+    db.add(bu)
+    db.commit()
+    db.refresh(bu)
+    return bu
+
+
 def update_bu(id: int, buss_u: BaseBuToUpdate, db: Session) -> BaseModelBu:
     bu = select_bu(id=id, db=db)
     if not bu:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Business id does not exists.",
+        )
     row = buss_u.dict(exclude_none=True)
     if not row:
         raise HTTPException(
             status_code=status.HTTP_206_PARTIAL_CONTENT, detail="No data to change."
         )
-    db.query(BusinessUnit).filter(BusinessUnit.id == id).update(row, synchronize_session=False)
+    db.query(BusinessUnit).filter(BusinessUnit.id == id).update(
+        row, synchronize_session=False
+    )
     db.commit()
     db.refresh(bu)
     return bu
@@ -45,8 +65,16 @@ def update_bu(id: int, buss_u: BaseBuToUpdate, db: Session) -> BaseModelBu:
 
 def delete_bu(id: int, db: Session) -> BaseModelBu:
     if not select_bu(id=id, db=db):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+        )
     bu = db.query(BusinessUnit).filter(BusinessUnit.id == id).first()
+    if bu.month:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete a BU that has Month references.",
+        )
+    data = BaseModelBu.from_orm(bu)
     db.delete(bu)
     db.commit()
-    return bu
+    return data

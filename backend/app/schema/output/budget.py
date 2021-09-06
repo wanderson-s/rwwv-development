@@ -12,6 +12,7 @@ class BaseModelBudget(BaseBudget):
     name: str
     created_at: datetime
     updated_at: datetime
+    status: List[BaseModelStatusBudgetDefault] = []
 
     class Config:
         orm_mode = True
@@ -20,7 +21,6 @@ class BaseModelBudget(BaseBudget):
 
 class BaseModelBudgetsEmployee(BaseModelEmployee):
     budget: List[BaseModelBudget] = Field([], alias="budgets")
-    status: List[BaseModelStatusBudgetDefault] = []
 
     class Config:
         orm_mode = True
@@ -29,7 +29,6 @@ class BaseModelBudgetsEmployee(BaseModelEmployee):
 
 class BaseModelBudgetEmployee(BaseModelBudget):
     employee: BaseModelEmployee
-    status: List[BaseModelStatusBudgetDefault] = []
 
     class Config:
         orm_mode = True
