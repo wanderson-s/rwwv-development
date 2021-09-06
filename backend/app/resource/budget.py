@@ -1,4 +1,5 @@
 # INPUT
+from starlette import status
 from app.common.response import BAD_REQUEST_400
 from app.config.settings import settings
 from app.model.database import get_db
@@ -19,7 +20,12 @@ from sqlalchemy.orm.session import Session
 def init_app(app: FastAPI):
     router = APIRouter()
 
-    @router.post("/budget", response_model=BaseModelBudget, responses=BAD_REQUEST_400)
+    @router.post(
+        "/budget",
+        response_model=BaseModelBudget,
+        responses=BAD_REQUEST_400,
+        status_code=status.HTTP_201_CREATED,
+    )
     async def post_budget(bud: BaseBudget, db: Session = Depends(get_db)):
         return budget.insert_budget(bud=bud, db=db)
 
