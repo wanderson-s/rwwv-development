@@ -5,6 +5,8 @@ from app.resource import auth
 from app.resource import employee
 from app.resource import budget
 from app.resource import approver
+from app.resource import month
+from app.resource import status_budget
 from app.model import tables
 
 
@@ -21,6 +23,8 @@ def create_app():
     bu.init_app(app=app)
     budget.init_app(app=app)
     approver.init_app(app=app)
+    month.init_app(app=app)
+    status_budget.init_app(app=app)
     return app
 
 

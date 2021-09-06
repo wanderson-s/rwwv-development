@@ -4,6 +4,7 @@ from typing import List
 from pydantic.fields import Field
 from app.schema.input.budget import BaseBudget
 from app.schema.output.employee import BaseModelEmployee
+from app.schema.output.status_budget import BaseModelStatusBudgetDefault
 
 
 class BaseModelBudget(BaseBudget):
@@ -19,6 +20,7 @@ class BaseModelBudget(BaseBudget):
 
 class BaseModelBudgetsEmployee(BaseModelEmployee):
     budget: List[BaseModelBudget] = Field([], alias="budgets")
+    status: List[BaseModelStatusBudgetDefault] = []
 
     class Config:
         orm_mode = True
@@ -27,6 +29,7 @@ class BaseModelBudgetsEmployee(BaseModelEmployee):
 
 class BaseModelBudgetEmployee(BaseModelBudget):
     employee: BaseModelEmployee
+    status: List[BaseModelStatusBudgetDefault] = []
 
     class Config:
         orm_mode = True

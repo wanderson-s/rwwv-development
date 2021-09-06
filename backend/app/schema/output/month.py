@@ -1,12 +1,15 @@
 from datetime import datetime
 from pydantic import validator
-from app.schema.input.employee import BaseEmployeeNoPassword
+from app.schema.input.month import BaseMonthDefault
+from app.schema.output.budget import BaseModelBudgetEmployee
 
 
-class BaseModelEmployee(BaseEmployeeNoPassword):
+class BaseModelMonth(BaseMonthDefault):
     id: int
     created_at: datetime
     updated_at: datetime
+    budget: BaseModelBudgetEmployee
+    # business:
 
     @validator("created_at", "updated_at")
     def validade_datetime(cls, v):

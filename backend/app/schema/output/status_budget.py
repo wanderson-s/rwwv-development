@@ -1,9 +1,10 @@
 from datetime import datetime
 from pydantic import validator
-from app.schema.input.employee import BaseEmployeeNoPassword
+from app.schema.input.status_budget import BaseStatusBudget
+from app.schema.input.common.budget import BaseModelBudget
 
 
-class BaseModelEmployee(BaseEmployeeNoPassword):
+class BaseModelStatusBudgetDefault(BaseStatusBudget):
     id: int
     created_at: datetime
     updated_at: datetime
@@ -15,3 +16,8 @@ class BaseModelEmployee(BaseEmployeeNoPassword):
     class Config:
         orm_mode = True
         allow_population_by_field_name = True
+
+
+class BaseModelStatusBudget(BaseModelStatusBudgetDefault):
+    budget: BaseModelBudget
+    # business:...
