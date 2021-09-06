@@ -2,12 +2,13 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from starlette import status
 from app.model.tables import BusinessUnit
+from app.model.tables import Employee
 
 # INPUT
 from app.schema.input.bu import BaseBu, BaseBuToUpdate
 
 # OUTPUT
-from app.schema.output.bu import BaseModelBu
+from app.schema.output.bu import BaseModelBu, BaseModelBus
 
 
 def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
@@ -20,6 +21,11 @@ def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
 
 def select_bu(id: int, db: Session) -> BaseModelBu:
     return db.query(BusinessUnit).filter(BusinessUnit.id == id).first()
+
+
+def select_bu_by_employee_id(employee_id: int, db: Session) -> BaseModelBus:
+    data = db.query(Employee).filter(Employee.id == employee_id).scalar()
+    return data
 
 
 def update_bu(id: int, buss_u: BaseBuToUpdate, db: Session) -> BaseModelBu:

@@ -1,4 +1,3 @@
-from pydantic.main import BaseModel
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import FastAPI
@@ -16,6 +15,7 @@ from app.schema.input.bu import BaseBu, BaseBuToUpdate
 
 # OUTPUT
 from app.schema.output.bu import BaseModelBu
+from app.schema.output.bu import BaseModelBus
 
 
 def init_app(app: FastAPI):
@@ -28,6 +28,10 @@ def init_app(app: FastAPI):
     )
     async def post_bu(buss_u: BaseBu, db: Session = Depends(get_db)):
         return bu.insert_bu(buss_u=buss_u, db=db)
+
+    @router.get("/bu", response_model=BaseModelBus)
+    async def get_bu_by_employee_id(employee_id: int = Query(...), db: Session = Depends(get_db)):
+        return bu.select_bu_by_employee_id(employee_id=employee_id, db=db)
 
     @router.get("/bu/{id}", response_model=BaseModelBu)
     async def get_bu(id: int, db: Session = Depends(get_db)):
