@@ -1,3 +1,4 @@
+from app.common.response import BAD_REQUEST_400, CKECK_TOKEN
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import FastAPI
@@ -23,20 +24,28 @@ def init_app(app: FastAPI):
         path="/login",
         status_code=status.HTTP_201_CREATED,
         response_model=BaseModelTokens,
+        responses=BAD_REQUEST_400,
     )
     async def post_login(user: BaseLogin, db: Session = Depends(get_db)):
         return auth.generate_token(user=user, db=db)
 
-    @router.post(path="/refresh-token", response_model=BaseModelTokens)
+    @router.post(
+        path="/refresh-token",
+        status_code=status.HTTP_201_CREATED,
+        response_model=BaseModelTokens,
+        responses=BAD_REQUEST_400,
+    )
     async def post_refresh_token(
-        refresh_token: str = Query(...), db: Session = Depends(get_db)
+        refresh_token: str = Query(..., min_length=32, max_length=32),
+        db: Session = Depends(get_db),
     ):
         return auth.refresh_token(refresh_token=refresh_token, db=db)
 
-    @router.get(path="/checks-token")
+    @router.get(path="/checks-token", responses=CKECK_TOKEN)
     async def get_check_token(
-        access_token: str = Query(...), db: Session = Depends(get_db)
+        access_token: str = Query(..., regex=settings.jwt_regex),
+        db: Session = Depends(get_db),
     ):
-        return auth.select_user()
+        return auth.check_token(access_token=access_token, db=db)
 
     app.include_router(router=router, prefix=settings.api_v1, tags=["Authorization"])

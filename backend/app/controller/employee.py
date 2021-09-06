@@ -1,4 +1,5 @@
 from hashlib import md5
+from typing import List
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
@@ -25,8 +26,7 @@ def insert_employee(empl: BaseEmployee, db: Session) -> BaseModelEmployee:
 
 
 def select_employee_by_id(id: int, db: Session) -> BaseModelEmployee:
-    data = db.query(Employee).filter(Employee.id == id).first()
-    return data
+    return db.query(Employee).filter(Employee.id == id).first()
 
 
 def select_employee_by_email(
@@ -35,6 +35,10 @@ def select_employee_by_email(
     if ilike:
         return db.query(Employee).filter(Employee.email.ilike((f"%{email}%"))).first()
     return db.query(Employee).filter(Employee.email == email).first()
+
+
+def select_employee_all(db: Session) -> List[BaseEmployee]:
+    return db.query(Employee).all()
 
 
 def update_employee(
