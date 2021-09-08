@@ -1,3 +1,4 @@
+from app.schema.output.month import BaseModelMonthDefault
 from datetime import datetime
 from typing import List
 
@@ -13,6 +14,7 @@ class BaseModelBudget(BaseBudget):
     created_at: datetime
     updated_at: datetime
     status: List[BaseModelStatusBudgetDefault] = []
+    month: List[BaseModelMonthDefault] = Field([], alias="months")
 
     class Config:
         orm_mode = True

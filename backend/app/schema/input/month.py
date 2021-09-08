@@ -13,8 +13,8 @@ class BaseMonthDefault(BaseModel):
     )
     value: float
     type: EnumMonthType
-    description: str
-    comment: str
+    description: str = None
+    comment: str = None
 
 
 class BaseMonth(BaseMonthDefault):

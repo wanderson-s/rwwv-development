@@ -1,3 +1,4 @@
+from app.schema.output.budget import BaseModelBudget
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import FastAPI
@@ -27,6 +28,12 @@ def init_app(app: FastAPI):
 
     @router.get("/month/{id}", response_model=BaseModelMonth)
     async def get_month_by_id(id: int, db: Session = Depends(get_db)):
-        return month.select_month_by_id(id=id, db=db)
+        return month.select_month(id=id, db=db)
+
+    @router.get("/month", response_model=BaseModelBudget)
+    async def get_month_by_budget_id(
+        budget_id: int = Query(...), db: Session = Depends(get_db)
+    ):
+        return month.select_month_by_budget_id(budget_id=budget_id, db=db)
 
     app.include_router(router=router, prefix=settings.api_v1, tags=["Month"])
