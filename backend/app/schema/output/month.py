@@ -1,3 +1,4 @@
+from app.schema.output.bu import BaseModelBu
 from datetime import datetime
 from pydantic import validator
 from app.schema.input.month import BaseMonthDefault
@@ -9,7 +10,7 @@ class BaseModelMonth(BaseMonthDefault):
     created_at: datetime
     updated_at: datetime
     budget: BaseModelBudgetEmployee
-    # business:
+    business: BaseModelBu
 
     @validator("created_at", "updated_at")
     def validade_datetime(cls, v):

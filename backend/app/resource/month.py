@@ -23,7 +23,7 @@ def init_app(app: FastAPI):
     async def post_month(mon: BaseMonth, db: Session = Depends(get_db)):
         return month.insert_month(mon=mon, db=db)
 
-    @router.get("/month", reponse_model=BaseModelMonth
+    # s@router.get("/month", reponse_model=BaseModelMonth
 
     @router.get("/month/{id}", response_model=BaseModelMonth)
     async def get_month_by_id(id: int, db: Session = Depends(get_db)):
