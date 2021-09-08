@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import Session
 import jwt
 
 from app.config.settings import settings
-from app.model.tables import Employee, insert
+from app.model.tables import Employee
 from app.model.tables import Token
 
 # input
@@ -66,7 +66,9 @@ def create_token(employee: Employee, db: Session):
 
 
 def get_token_enable(id: int, db: Session):
-    data = db.query(Token).filter(Token.fk_id_employees == id, Token.enable == True).first()
+    data = (
+        db.query(Token).filter(Token.fk_id_employees == id, Token.enable == True).first()
+    )
     if data and data.exp > datetime.utcnow():
         return data
     return {}
@@ -94,7 +96,9 @@ def refresh_token(
     db: Session, refresh_token: str = Query(..., min_length=32, max_length=32)
 ) -> BaseModelTokens:
     token = (
-        db.query(Token).filter(Token.refresh_token == refresh_token, Token.enable == True).first()
+        db.query(Token)
+        .filter(Token.refresh_token == refresh_token, Token.enable == True)
+        .first()
     )
     if not token:
         raise HTTPException(
@@ -115,4 +119,8 @@ def check_token(access_token: str, db: Session) -> dict:
         jwt.decode(jwt=access_token, key=settings.jwt_secret, algorithms="HS256")
         return {"detail": "Valid token."}
     except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_206_PARTIAL_CONTENT,
+            detail=str(error) or "Invalid token.",
+        )
         raise HTTPException(status_code=status.HTTP_206_PARTIAL_CONTENT, detail=str(error))

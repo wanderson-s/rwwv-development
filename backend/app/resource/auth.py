@@ -41,7 +41,7 @@ def init_app(app: FastAPI):
     ):
         return auth.refresh_token(refresh_token=refresh_token, db=db)
 
-    @router.get(path="/checks-token", responses=CKECK_TOKEN)
+    @router.get("/check-token", responses=CKECK_TOKEN)
     async def get_check_token(
         access_token: str = Query(..., regex=settings.jwt_regex),
         db: Session = Depends(get_db),
