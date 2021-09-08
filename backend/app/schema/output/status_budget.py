@@ -21,11 +21,3 @@ class BaseModelStatusBudgetDefault(BaseStatusBudget):
 
 class BaseModelStatusBudget(BaseModelStatusBudgetDefault):
     budget: BaseModelBudget
-
-
-class BaseModelStatusBudgets(BaseModelBudget):
-    status: List[BaseModelStatusBudgetDefault] = []
-
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True

@@ -12,25 +12,30 @@ from app.controller import status_budget
 from app.schema.input.status_budget import BaseStatusBudget, BasestatusBudgetToUpdate
 
 # OUTPUT
-from app.schema.output.status_budget import BaseModelStatusBudget, BaseModelStatusBudgets
+from app.schema.output.status_budget import BaseModelStatusBudget
+from app.schema.output.budget import BaseModelBudget
 
 
 def init_app(app: FastAPI):
     router = APIRouter()
 
     @router.post("/status_budget", response_model=BaseModelStatusBudget)
-    async def post_status_budget(status_bud: BaseStatusBudget, db: Session = Depends(get_db)):
+    async def post_status_budget(
+        status_bud: BaseStatusBudget, db: Session = Depends(get_db)
+    ):
         return status_budget.insert_status_budget(status_bud=status_bud, db=db)
 
     @router.get("/status_budget/{id}", response_model=BaseModelStatusBudget)
     async def get_status_budget_id(id: int, db: Session = Depends(get_db)):
         return status_budget.select_status_budget_by_id(id=id, db=db)
 
-    @router.get("status_budget", response_model=BaseModelStatusBudgets)
+    @router.get("/status_budget", response_model=BaseModelBudget)
     async def get_status_budget_by_budget_id(
         budget_id: int = Query(...), db: Session = Depends(get_db)
     ):
-        return status_budget.select_status_budget_by_budget_id(budget_id=budget_id, db=db)
+        return status_budget.select_status_budget_by_budget_id(
+            budget_id=budget_id, db=db
+        )
 
     @router.patch("/status_budget/{id}", response_model=BaseModelStatusBudget)
     async def patch_status_budget(
