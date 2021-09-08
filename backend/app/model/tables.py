@@ -100,7 +100,7 @@ class BusinessUnit(Base):
     # defaults
     id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
-    product = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
+    product = sqlalchemy.Column(sqlalchemy.String(100), nullable=False, unique=True)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=True)
     # datetime
     created_at = sqlalchemy.Column(
@@ -215,7 +215,7 @@ class StatusBudget(Base):
         sqlalchemy.Enum(EnumBudgetStatus), default=EnumBudgetStatus.draft, nullable=False
     )
     current = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=False)
-
+    message = sqlalchemy.Column(sqlalchemy.Text, nullable=True)
     # datetime
     created_at = sqlalchemy.Column(
         sqlalchemy.DateTime, default=datetime.now, nullable=False

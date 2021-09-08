@@ -5,7 +5,7 @@ from uuid import uuid1
 from fastapi.param_functions import Query
 from sqlalchemy.orm.session import Session
 
-# import jwt
+import jwt
 
 from app.config.settings import settings
 from app.model.tables import Employee, insert
@@ -110,13 +110,9 @@ def refresh_token(
 def check_token(access_token: str, db: Session) -> dict:
     token = db.query(Token).filter(Token.access_token == access_token).first()
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token.")
     try:
         jwt.decode(jwt=access_token, key=settings.jwt_secret, algorithms="HS256")
         return {"detail": "Valid token."}
     except Exception as error:
-        raise HTTPException(
-            status_code=status.HTTP_206_PARTIAL_CONTENT, detail=str(error)
-        )
+        raise HTTPException(status_code=status.HTTP_206_PARTIAL_CONTENT, detail=str(error))

@@ -30,6 +30,6 @@ class EnumMonths(enum.Enum):
 class EnumBudgetStatus(enum.Enum):
     draft = "draft"
     approve = "approve"
-    refused = "refused"
+    denied = "denied"
     remake = "remake"
     approved = "approved"

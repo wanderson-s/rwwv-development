@@ -29,11 +29,13 @@ def insert_budget(bud: BaseBudget, db: Session):
 def select_budgets_by_employee_id(
     employee_id: int, db: Session
 ) -> BaseModelBudgetsEmployee:
-    return db.query(Employee).filter(Employee.id == employee_id).scalar()
+    data = db.query(Employee).filter(Employee.id == employee_id).scalar()
+    return data
 
 
 def select_budget_by_budget_id(budget_id: int, db: Session) -> BaseModelBudgetEmployee:
-    return db.query(Budget).filter(Budget.id == budget_id).first()
+    data = db.query(Budget).filter(Budget.id == budget_id).first()
+    return data
 
 
 def delete_budget_by_id(budget_id: int, db: Session) -> BaseModelBudgetEmployee:
