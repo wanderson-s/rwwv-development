@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import validator
+from typing import List
 from app.schema.input.status_budget import BaseStatusBudget
 from app.schema.input.common.budget import BaseModelBudget
 
@@ -20,4 +21,3 @@ class BaseModelStatusBudgetDefault(BaseStatusBudget):
 
 class BaseModelStatusBudget(BaseModelStatusBudgetDefault):
     budget: BaseModelBudget
-    # business:...
