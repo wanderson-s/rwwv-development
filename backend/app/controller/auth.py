@@ -28,10 +28,10 @@ def mount_body_token(employee: Employee):
             "first_name": employee.first_name,
             "last_name": employee.last_name,
             "position": employee.position.value,
+            "active": employee.active,
         },
         "role": {
             "is_admin": employee.is_admin,
-            "active": employee.active,
             "can_simulate_budget": employee.can_simulate_budget,
             "can_submit_budget": employee.can_submit_budget,
             "can_approve_budget": employee.can_approve_budget,
@@ -114,7 +114,9 @@ def refresh_token(
 def check_token(access_token: str, db: Session) -> dict:
     token = db.query(Token).filter(Token.access_token == access_token).first()
     if not token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
+        )
     try:
         jwt.decode(jwt=access_token, key=settings.jwt_secret, algorithms="HS256")
         return {"detail": "Valid token."}
@@ -123,4 +125,6 @@ def check_token(access_token: str, db: Session) -> dict:
             status_code=status.HTTP_206_PARTIAL_CONTENT,
             detail=str(error) or "Invalid token.",
         )
-        raise HTTPException(status_code=status.HTTP_206_PARTIAL_CONTENT, detail=str(error))
+        raise HTTPException(
+            status_code=status.HTTP_206_PARTIAL_CONTENT, detail=str(error)
+        )
