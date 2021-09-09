@@ -13,10 +13,21 @@ class BaseMonthDefault(BaseModel):
     )
     value: float
     type: EnumMonthType
-    description: str
-    comment: str
+    description: str = None
+    comment: str = None
 
 
 class BaseMonth(BaseMonthDefault):
     fk_id_business_unit: int = Field(..., alias="bu_id", ge=1)
     fk_id_budget: int = Field(..., alias="budget_id", ge=1)
+
+
+class BaseMonthUpdate(BaseModel):
+    month: EnumMonths = None
+    year: int = Field(None, ge=datetime.now().year, le=datetime.now().year + 1)
+    value: float = None
+    type: EnumMonthType = None
+    description: str = None
+    comment: str = None
+    fk_id_business_unit: int = Field(None, alias="bu_id", ge=1)
+    fk_id_budget: int = Field(None, alias="budget_id", ge=1)

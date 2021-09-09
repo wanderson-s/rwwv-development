@@ -100,9 +100,7 @@ class BusinessUnit(Base):
     # defaults
     id = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
-    product_family = sqlalchemy.Column(
-        sqlalchemy.String(100), nullable=False, unique=True
-    )
+    product_family = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=True)
     # datetime
     created_at = sqlalchemy.Column(
