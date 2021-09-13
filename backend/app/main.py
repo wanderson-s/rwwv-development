@@ -1,3 +1,8 @@
+import os, sys
+
+# configuring this folder with the main module.
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 from fastapi import FastAPI
 from app.config import cors
 from app.resource import bu

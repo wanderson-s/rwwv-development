@@ -286,6 +286,6 @@ def insert():
 
 
 def init_app(app: FastAPI):
-    # drop_table()
+    drop_table()
     create_table()
-    # insert()
+    insert()
