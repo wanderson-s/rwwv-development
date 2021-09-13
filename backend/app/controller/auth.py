@@ -125,6 +125,18 @@ def check_token(access_token: str, db: Session) -> dict:
             status_code=status.HTTP_206_PARTIAL_CONTENT,
             detail=str(error) or "Invalid token.",
         )
+
+
+def get_me(access_token: str, db: Session) -> dict:
+    token = db.query(Token).filter(Token.access_token == access_token).first()
+    if not token:
         raise HTTPException(
-            status_code=status.HTTP_206_PARTIAL_CONTENT, detail=str(error)
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
+        )
+    try:
+        return jwt.decode(jwt=access_token, key=settings.jwt_secret, algorithms="HS256")
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_206_PARTIAL_CONTENT,
+            detail=str(error) or "Invalid token.",
         )
