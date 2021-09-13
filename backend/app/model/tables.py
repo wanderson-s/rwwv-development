@@ -268,14 +268,14 @@ class Approver(Base):
     )
 
 
-def create_table():
-    engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
-    Base.metadata.create_all(bind=engine)
-
-
 def drop_table():
     engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
     Base.metadata.drop_all(bind=engine, checkfirst=True)
+
+
+def create_table():
+    engine = sqlalchemy.create_engine(settings.database_uri, echo=True)
+    Base.metadata.create_all(bind=engine)
 
 
 def insert():
