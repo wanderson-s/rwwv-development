@@ -81,7 +81,11 @@ def generate_token(user: BaseLogin, db: Session) -> BaseModelTokens:
     user.password = md5(user.password.encode()).hexdigest()
     employee = (
         db.query(Employee)
-        .filter(Employee.email == user.email, Employee.password == user.password)
+        .filter(
+            Employee.email == user.email,
+            Employee.password == user.password,
+            Employee.active == True,
+        )
         .first()
     )
     if not employee:
