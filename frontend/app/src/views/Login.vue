@@ -64,6 +64,7 @@
 
 <script>
 import axios from "axios"
+import checkLogin from '../js/checkLogin'
 
 export default {
   name: "ViewLogin",
@@ -82,11 +83,13 @@ export default {
     onSubmit:  async function (event) {
       event.preventDefault();
       try {
+        console.log("VALIDANTE USER")
         const response = await axios.post("http://localhost:8001/v1/auth/login", this.form);
         this.saveTokens(response);
         this.showDismissibleAlert = false
         this.redirectToHome()
       } catch(error){
+        console.log("USER NO ACCESS")
         this.can_access = false
         this.showDismissibleAlert = true
       }
@@ -98,22 +101,26 @@ export default {
       this.form.password = "";
     },
     saveTokens (response){
+      console.log("SAVE TOKEN")
       localStorage.setItem("access_token", response.data.access_token);
       localStorage.setItem("refresh_token", response.data.refresh_token);
     },
-    getMe: async function () {
-      try {
-        const url = "http://localhost:8001/v1/auth/get-me?access_token=" +localStorage.getItem("access_token")
-        const response = await axios.get(url);
-        return response.data
-      } catch(error){
-        console.error(error)
-      }
-    },
     redirectToHome: async function () {
-      const user = await this.getMe()
-      console.log(user)
-      this.$router.push({ name: 'Home', path: '/'})
+      console.log("REDIRECT TO HOME")
+      this.$router.push({ 
+        name: 'Home', 
+        path: '/',
+      })
+    }
+  },
+  async beforeMount(){
+    const data = await checkLogin()
+    if(data){
+      console.log("USER LOGIN.")
+      this.$router.push({ 
+        name: 'Home', 
+        path: '/', 
+      })
     }
   }
 };

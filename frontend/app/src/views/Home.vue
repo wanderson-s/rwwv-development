@@ -1,23 +1,39 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="main-container">
+    <Navbar :user="user"/>
+    <p> Home - {{ user }} </p>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import checkLogin from '../js/checkLogin'
+import Navbar from '../components/Navbar.vue'
 
 export default {
   name: 'Home',
   data() {
     return {
-      user: {}
+      user: null
     }
   },
   components: {
-    HelloWorld
+    Navbar
+  },
+  async created(){
+    if (!this.user){
+      const data = await checkLogin()
+      if(data){
+        console.log("USER EXISTS.")
+        this.user = data
+        this.$emit('resetuser', this.user)
+      }else{
+        console.log("USER DOES NOT EXISTS.")
+        this.$router.push({ 
+          name: 'Login', 
+          path: '/login', 
+        })
+      }
+    }
   }
 }
 </script>

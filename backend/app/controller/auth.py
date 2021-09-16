@@ -106,7 +106,7 @@ def refresh_token(
     )
     if not token:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user or password."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh"
         )
     if token and token.exp > datetime.utcnow():
         return token
