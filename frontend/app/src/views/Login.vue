@@ -1,149 +1,153 @@
 <template>
-  <div id="div-login" class="container border rounded" style="text-align: center;">
-    <div>
-        <b-alert
-          id="alert-login"
-          variant="danger"
-          dismissible
-          fade
-          :show="showDismissibleAlert"
-          @dismissed="showDismissibleAlert=false"
+  <div id="div-login" class="container">
+    <form id="form-login" class="row g-3 border border-danger border-2" @submit="onSubmit" @reset="onReset">
+      <div v-show="showDismissibleAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>E-mail</strong> ou <strong>Senha</strong> invalido.
+      </div>
+      <div class="text-center">
+        <img src="https://www.taimin.com.br/images/brand.png?2" class="rounded" alt="logo">
+      </div>
+      <!--EMAIL-->
+      <div class="col-12">
+        <label 
+          for="email" 
+          class="form-label"
         >
-          E-mail ou senha invalida.
-        </b-alert>
-    </div>
-    <div id="div-image-login">
-      <b-img src="https://www.taimin.com.br/images/brand.png?2" v-bind="mainProps" rounded alt="Login"></b-img>
-    </div>
-      <b-form class="form-login" @submit="onSubmit" @reset="onReset">
-        <b-form-group
-          class="label-login"
-          id="label-email"
-          label="E-mail"
-          label-for="input-email"
-          description="Digite seu email Taimin."
+        E-mail
+        </label>
+        <input 
+          id="email"
+          v-model="form.localEmail"
+          type="email" 
+          class="form-control" 
+          placeholder="seuemail@taimin.com.br"
         >
-          <b-form-input
-            id="input-email"
-            v-model="form.email"
-            type="email"
-            :state="can_access"
-            aria-describedby="input-login-feedback"
-            placeholder="seuemail@taimin.com.br"
-            required
-          ></b-form-input>
-        </b-form-group>
-
-        <b-form-group 
-          class="label-login"
+      </div>
+      <!--PASSWORD-->
+      <div class="col-12">
+        <label 
+          for="password" 
+          class="form-label"
+        >
+        Senha
+        </label>
+        <input 
           id="password" 
-          label="Senha"
-          label-for="input-password"
+          v-model="form.localPassword"
+          :type="type_password" 
+          class="form-control" 
+          placeholder="senha"
         >
-        <b-form-input
-          id="input-password"
-          v-model="form.password"
-          :type="type_password"
-          :state="can_access"
-          placeholder="Digite sua senha."
-          required
-        ></b-form-input>
-          <b-form-checkbox
-            switch
-            v-model="type_password"
-            name="checkbox-login"
-            unchecked-value="password"
+      </div>
+      <!--CHECK-->
+      <div class="col-12">
+        <div class="form-check">
+          <input 
+            type="checkbox" 
+            id="showPass"
+            class="form-check-input"
+            @click="changePasswordType"
           >
-            Mostrar Senha
-          </b-form-checkbox>
-        </b-form-group>
-      <b-button type="submit" pill variant="info"> Acessar </b-button>
-    </b-form>
+          <label class="form-check-label" for="showPass">
+            Mostrar senha
+          </label>
+        </div>
+      </div>
+      <div id="button-login" class="col-12">
+        <button type="submit" class="btn btn-primary" style="background-color='#dc3545'"> Acessar </button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script>
-import axios from "axios"
-import checkLogin from '../js/checkLogin'
+import login from '../js/login.js'
+import checkLogin from '../js/checkLogin.js'
 
 export default {
-  name: "ViewLogin",
-  data() {
+  name: 'Login',
+  data () {
     return {
-      form: {
-        email: "",
-        password: "",
-      },
+      type_password: 'password',
       showDismissibleAlert: false,
-      can_access: true,
-      type_password: "password"
-    };
-  },
-  methods: {
-    onSubmit:  async function (event) {
-      event.preventDefault();
-      try {
-        console.log("VALIDANTE USER")
-        const response = await axios.post("http://localhost:8001/v1/auth/login", this.form);
-        this.saveTokens(response);
-        this.showDismissibleAlert = false
-        this.redirectToHome()
-      } catch(error){
-        console.log("USER NO ACCESS")
-        this.can_access = false
-        this.showDismissibleAlert = true
+      form: {
+        localEmail: '',
+        localPassword: '',
       }
+    }
+  },
+  methods:{
+    changePasswordType: function (event) {
+      this.type_password = this.type_password == 'password' ? 'text' : 'password'
     },
-    onReset: async function (event) {
-      event.preventDefault();
-      // Reset our form values
-      this.form.email = "";
-      this.form.password = "";
-    },
-    saveTokens (response){
-      console.log("SAVE TOKEN")
-      localStorage.setItem("access_token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-    },
-    redirectToHome: async function () {
+    redirectToHome: function () {
       console.log("REDIRECT TO HOME")
       this.$router.push({ 
         name: 'Home', 
         path: '/',
       })
+    },
+    onReset: function (event) {
+      event.preventDefault();
+      this.form.localEmail = '';
+      this.form.localPassword = '';
+    },
+    onSubmit: async function (event) {
+      event.preventDefault();
+      console.log("VALIDANTE USER")
+      const data = {
+        email: this.form.localEmail,
+        password: this.form.localPassword
+      }
+      const resp = await login(data)
+      if (resp) {
+        this.showDismissibleAlert = false
+        this.redirectToHome()
+      } else {
+        this.showDismissibleAlert = true
+      }
     }
   },
-  async beforeMount(){
-    const data = await checkLogin()
-    if(data){
-      console.log("USER LOGIN.")
-      this.$router.push({ 
-        name: 'Home', 
-        path: '/', 
-      })
+  async mounted (){
+    try {
+      const data = await checkLogin()
+      if(data){
+        this.$router.push({ 
+          name: 'Home', 
+          path: '/', 
+        })
+      }
+    } catch (error) {
+      console.log("REQUEST ERROR")
     }
   }
-};
-
+}
 </script>
 
 <style scoped>
-  .label-login {
-    text-align: left;
-  }
-  .form-login {
-    align-items: center;
-    padding: 5%;
-  }
-  #div-login {
-    max-width: 500px;
-    min-width: 400px;
-    margin-top: 10%;
-  }
-  #div-image-login {
-    margin-top: 5%;
-  }
-  #alert-login {
-    margin-top: 3%;
-  }
+#div-login {
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh;
+}
+
+#form-login {
+  display: flex;
+  align-items: center; 
+  width: 550px;
+  min-height: 250px;
+  padding: 30px;
+  border-radius: 7pt;
+}
+#button-login {
+  display: flex; 
+  justify-content: center;
+}
+
+.btn-primary{
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
 </style>

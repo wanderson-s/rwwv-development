@@ -3,12 +3,7 @@ import axios from "axios";
 const baseUrl = "http://localhost:8001/v1/auth"
 const urlGetMe = baseUrl + "/get-me?access_token="
 
-function showError(error){
-    console.error("Status: ", error.response.status)
-    console.error("Data: ", error.response.data)
-}
-
-async function checkLogin(){
+async function checkLogin () {
     const access_token = localStorage.getItem("access_token")
     const refresh_token = localStorage.getItem("refresh_token")
 
@@ -23,7 +18,7 @@ async function checkLogin(){
                 return (await axios.get(uri)).data
             }
         } catch (error) {
-            showError(error)
+            console.log("ACCESS TOKEN ERROR.")
         }
     }
     if (refresh_token){
@@ -39,7 +34,7 @@ async function checkLogin(){
                 return (await axios.get(uri)).data
             } 
         }catch (error) {
-            showError(error)
+            console.log("REFRESH TOKEN ERROR.")
         }
     }
     return null

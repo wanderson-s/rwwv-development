@@ -1,25 +1,30 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Login from '../views/Login.vue'
-
-Vue.use(VueRouter)
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
-    path: '/login',
-    name: 'Login',
-    component: Login
-  },
-  {
     path: '/',
     name: 'Home',
-    component: () => import("../views/Home.vue")
+    component: () => import('../views/Home.vue')
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/Login.vue')
+  },
+  {
+    path: '/funcionario',
+    name: 'Funcionario',
+    component: () => import('../views/Funcionario.vue')
+  },
+  {
+    path: '/orcamento',
+    name: 'Orçamento',
+    component: () => import('../views/Orcamento.vue')
   }
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
 

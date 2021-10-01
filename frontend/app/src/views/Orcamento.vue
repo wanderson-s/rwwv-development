@@ -1,15 +1,11 @@
 <template>
-  <div class="home">
-    <p>Home</p>
-  </div>
+  <p>orcamento</p>
 </template>
 
 <script>
 import checkLogin from '../js/checkLogin.js'
 export default {
-  name: 'Home',
-  components: {
-  },
+  name: 'Budget',
   methods: {
     redirectToLogin: function () {
       console.log("REDIRECT TO LOGIN")
@@ -22,7 +18,7 @@ export default {
       if(!data){
         console.log("USER DOES NOT EXISTS.")
         this.redirectToLogin()
-      } 
+      }
     } catch (error) {
       console.log("REQUEST ERROR")
       this.redirectToLogin()
@@ -30,3 +26,7 @@ export default {
   }
 }
 </script>
+
+<style>
+
+</style>
