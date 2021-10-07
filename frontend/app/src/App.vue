@@ -1,54 +1,58 @@
 <template>
   <div class="div-main">
-    <Navbar/>
-    <router-view class="div-body" />
+    <Navbar />
+    <router-view class="div-body shadow" />
   </div>
-
 </template>
 
 <script>
 import "bootstrap/dist/css/bootstrap.min.css";
-import checkLogin from './js/checkLogin.js'
-import Navbar from './components/Navbar.vue'
+import checkLogin from "./js/checkLogin.js";
+import Navbar from "./components/Navbar.vue";
 
 export default {
   components: {
-    Navbar, 
+    Navbar,
   },
   methods: {
     redirectToLogin: function () {
-      console.log("REDIRECT TO LOGIN")
-      this.$router.push("/login")
-    }
+      console.log("REDIRECT TO LOGIN");
+      this.$router.push("/login");
+    },
   },
   data() {
-    return { 
-      }
+    return {
+      user: null,
+    };
   },
-  async created (){
+  async mounted() {
     try {
-      const data = await checkLogin()
-      if(!data){
-        console.log("USER DOES NOT EXISTS.")
-        this.redirectToLogin()
+      const data = await checkLogin();
+      if (!data) {
+        console.log("USER DOES NOT EXISTS.");
+        this.redirectToLogin();
       }
     } catch (error) {
-      console.log("REQUEST ERROR")
-      this.redirectToLogin()
+      console.log("REQUEST ERROR");
+      this.redirectToLogin();
     }
-    console.log(this.showMenu)
-  }
-}
+  },
+};
 </script> 
 
 <style scoped>
 .div-body {
-  margin: 5px 3px;
+  margin: 5px 3px !important;
   padding: 20px;
-  border: 2px solid red;
-  border-radius: 10px;
-  height: calc(100vh - 75px);
+  min-height: calc(100vh - 75px);
+  min-width: 100vh;
   bottom: 0;
-  }
-
+  
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: stretch;
+	align-content: flex-start;
+}
 </style>

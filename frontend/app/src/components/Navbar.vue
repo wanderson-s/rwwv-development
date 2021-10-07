@@ -46,7 +46,7 @@ export default {
 
 }
 .navbar {
-    margin: 0px 3px;
+    margin: 0px 4px;
     background-color: #dc3545;
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;

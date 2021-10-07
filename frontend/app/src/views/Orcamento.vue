@@ -4,24 +4,24 @@
 
 <script>
 import checkLogin from '../js/checkLogin.js'
+import redirectToLogin from '../js/redirectLogin'
+
 export default {
   name: 'Budget',
-  methods: {
-    redirectToLogin: function () {
-      console.log("REDIRECT TO LOGIN")
-      this.$router.push("/login")
-    }
+  data () {
+    user: null
   },
   async mounted (){
     try {
       const data = await checkLogin()
       if(!data){
         console.log("USER DOES NOT EXISTS.")
-        this.redirectToLogin()
+        redirectToLogin(this)
+        this.user = data
       }
     } catch (error) {
       console.log("REQUEST ERROR")
-      this.redirectToLogin()
+      redirectToLogin(this)
     }
   }
 }
