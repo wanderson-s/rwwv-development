@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import VCalendar from 'v-calendar'
+import VueScrollTo  from 'vue-scrollto';
 
 import '@fortawesome/fontawesome-free/js/all'
 
@@ -16,4 +17,5 @@ app.use(VCalendar, {
       } 
     }
   });
+app.use(VueScrollTo)
 app.use(router).mount('#app')

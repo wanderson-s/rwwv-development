@@ -1,12 +1,12 @@
 <template>
-  <div class="container-fluid p-1 pe-2">
+  <div id="local-main" class="container-fluid p-1 pe-2">
     <div  id="form" class="container d-flex justify-content-center">
       <h3 class="card-title pb-0 pt-0">Funcionários</h3>
     </div>
     <form class="row g-0 border border-danger rounded p-3" @submit="onSubmit">
-      <div v-show="disableAlert" v-for="al in alertList" :key="al" class="alert alert-danger" role="alert">
-        {{ al }}
-      </div>
+      <AlertMessage :alertShow="disableAlert" v-for="al in alertList" :key="al" :alertText="al" alertType="alert-danger"/>
+      <AlertMessage :alertShow="successAlert" :alertText="successMessage" alertType="alert-success"/>
+
       <h5 class="card-title pb-0 pt-0">Dados</h5>
       <div class="fields shadow border border-1 rounded p-4">
         <div class="col-12 required">
@@ -66,8 +66,9 @@
             aria-label="Selecione o cargo."
             required
           >
-            <option :selected="position[0].value"> {{ position[0].value }} </option>
-            <option v-for="pos in position.filter((posi) => posi.key !== 'analyst')" :key="pos.key" :value="pos.key">{{ pos.value}}</option>
+            <option :selected="employee.position"> {{ employee.position }} </option>
+            <!-- posi.key !== 'analyst' -->
+            <option v-for="pos in position.filter((posi) => posi.value !== employee.position )" :key="pos.key" :value="pos.value">{{ pos.value}}</option>
           </select>
         </div>
 
@@ -90,6 +91,7 @@
         <div class="form-check form-switch">
           <label for="active" class="form-label">Ativo</label>
           <input
+            id="active"
             :disabled="disableForm"
             v-model="employee.active"
             type="checkbox"
@@ -99,6 +101,7 @@
         <div class="form-check form-switch">
           <label for="is_admin" class="form-label">Administrador</label>
           <input
+            id="is_admin"
             :disabled="disableForm"
             v-model="employee.is_admin"
             type="checkbox"
@@ -106,10 +109,9 @@
           />
         </div>
         <div class="form-check form-switch">
-          <label for="can_simulate_budget" class="form-label"
-            >Simular Orçamento</label
-          >
+          <label for="can_simulate_budget" class="form-label">Simular Orçamento</label>
           <input
+            id="can_simulate_budget"
             :disabled="disableForm"
             v-model="employee.can_simulate_budget"
             type="checkbox"
@@ -117,10 +119,9 @@
           />
         </div>
         <div class="form-check form-switch">
-          <label for="can_submit_budget" class="form-label"
-            >Criar Orçamento</label
-          >
+          <label for="can_submit_budget" class="form-label">Criar Orçamento</label>
           <input
+            id="can_submit_budget"
             :disabled="disableForm"
             v-model="employee.can_submit_budget"
             type="checkbox"
@@ -128,10 +129,9 @@
           />
         </div>
         <div class="form-check form-switch">
-          <label for="can_approve_budget" class="form-label"
-            >Aprovar Orçamento</label
-          >
+          <label for="can_approve_budget" class="form-label">Aprovar Orçamento</label>
           <input
+            id="can_approve_budget"
             :disabled="disableForm"
             v-model="employee.can_approve_budget"
             type="checkbox"
@@ -141,6 +141,7 @@
         <div class="form-check form-switch">
           <label for="can_read_budget" class="form-label">Ver Orçamento</label>
           <input
+            id="can_read_budget"
             :disabled="disableForm"
             v-model="employee.can_read_budget"
             type="checkbox"
@@ -158,6 +159,8 @@
     </form>
 
     <div class="table-func d-flex row g-0 border border-danger rounded p-3 mt-2">
+      <AlertMessage :alertShow="removeAlert" :alertText="removeMessage" alertType="alert-success"/>
+      <AlertMessage :alertShow="removeAlertError" :alertText="removeMessageError" alertType="alert-danger"/>
       <h5 class="card-title">Listagem de Funcionários</h5>
       <table  class="table table-bordered">
         <thead class="table table-dark border border-white">
@@ -176,9 +179,9 @@
         </thead>
         <tbody>
           <tr v-for="empl in employees" :key="empl.id">
-            <td>{{ empl.email }}</td>
-            <td>{{ position_pt[empl.position] }}</td>
-            <td>{{ empl.first_name }} {{ empl.last_name }}</td>
+            <td >{{ empl.email }}</td>
+            <td >{{ position_pt[empl.position] }}</td>
+            <td >{{ empl.first_name }} {{ empl.last_name }}</td>
             <td class="active"><i :class="isActive(empl.active)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
             <td class="active"><i :class="isActive(empl.can_simulate_budget)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
             <td class="active"><i :class="isActive(empl.can_submit_budget)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
@@ -186,7 +189,7 @@
             <td class="active"><i :class="isActive(empl.can_read_budget)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
             <td class="active"><i :class="isActive(empl.is_admin)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
             <td class="d-flex flex-row justify-content-around" style="max-width: 100px;">
-              <button @click="loadEmployee(empl.id)" type="button" class="btn btn-primary btn-sm m-0"><i class="bi bi-eye-fill"></i></button>
+              <button @click="loadEmployee(empl.id)" v-scroll-to="'#local-main'" type="button" class="btn btn-primary btn-sm m-0"><i class="bi bi-eye-fill"></i></button>
               <button @click="removeEmployee(empl.id)" type="button" class="btn btn-danger btn-sm m-0" ><i class="far fa-trash-alt"></i></button>
             </td>
           </tr>
@@ -201,9 +204,10 @@
 import checkLogin from "../js/checkLogin.js";
 import redirectToLogin from "../js/redirectLogin";
 import DefaultButton from "../components/DefaultButton.vue";
+import AlertMessage from "../components/AlertMessage.vue";
 import Employee from '../services/employee.js'
 
-const position = {
+const positionData = {
   list: [
     {key: "analyst", value: "Analista"},
     {key: "manager", value: "Gerente"},
@@ -221,7 +225,7 @@ const position = {
   }
 }
 const alertMsg = {
-  email: 'Email invalido, o e-mail precisa ter @taimin.com.br!',
+  email: 'Email invalido, o e-mail precisa ter "@taimin.com.br".',
   password: 'A senha precisa ter mais de 8 caracteres com no minimo 1 letra maiúscula, 1 número e 1 caracter especial.',
   first_name: 'Nome invalido.',
   last_name: 'Sobrenome invalido.',
@@ -233,6 +237,7 @@ export default {
   name: "Employee",
   components: {
     DefaultButton,
+    AlertMessage
   },
   methods: {
     isActive: function (value) {
@@ -242,9 +247,14 @@ export default {
       this.buttonUpdateDisable = false
       this.employees.forEach(element => {
         if (element.id == id) {
-          this.employee = element
+          const data = {...element}
+          console.log(data)
+          data.position = positionData.en[data.position]
+          
+          this.employee = data
           this.disableForm = false
           this.buttonNewDisable = true
+          this.buttonCreateDisable = true
           return
         }
       });
@@ -257,18 +267,25 @@ export default {
         })
     },
     createEmployee: function () {
-      const data = this.employee
-      data.position = position.pt[data.position]
+      const data = {...this.employee}
+      console.log(data)
+      data.position = positionData.pt[data.position]
       data.birth_date = data.birth_date.toISOString().split('T')[0]
+      console.log(data)
       
       Employee.createEmployee(data)
         .then((resp) => {
-          console.log(resp)
           this.listEmployee()
+          this.successMessage = 'Funcionário adicionado com sucesso.'
+          this.successAlert = true
+          setTimeout(() => {
+            this.successMessage = ''
+            this.successAlert = false
+          }, 10000)
         }).catch((err) => {
-          console.log(err.request)
-          console.log(err.response.data)
           if (err.response.status == 422) {
+            console.log(err.response.data)
+            console.log(err.request.data)
             this.alertList = err.response.data.detail.map((d) => {
               const key = d.loc.slice(-1)[0]
               return alertMsg[key]
@@ -288,9 +305,24 @@ export default {
         Employee.removeEmployee(id)
           .then(() => {
             console.log("REMOVE EMPLOYEE.")
+            this.removeAlert = true
+            this.removeMessage = 'Funcionário removido com sucess.'
             this.listEmployee()
+            setTimeout(() => {
+              this.removeMessage = ''
+              this.removeAlert = false
+            }, 10000)
           }).catch((err) => {
             console.log("DON'T REMOVE EMPLOYEE.")
+            if (err.response.status == 400) { 
+              this.removeMessageError = 'Problema para remover o funcionário. Há uma ou mais unidades de négocio associada ao mesmo.'
+              this.removeAlertError = true
+              setTimeout(() => {
+                this.removeMessageError = ''
+                this.removeAlertError = false
+              }, 10000)
+            }
+            console.log(err.response.data)
           });
       }
       
@@ -302,7 +334,7 @@ export default {
       this.employee.first_name = ""
       this.employee.last_name = ""
       this.employee.birth_date = new Date(2000, 1, 1)
-      this.employee.position = position.list[0].value
+      this.employee.position = positionData.en.analyst
       this.employee.active = false
       this.employee.can_simulate_budget = false
       this.employee.can_submit_budget = false
@@ -330,7 +362,6 @@ export default {
       this.disableForm = false
       this.buttonCreateDisable = false
       this.buttonNewDisable = true
-      this.employees.position = position.list[0].value
     }
   },
   data () {
@@ -341,7 +372,7 @@ export default {
         first_name: "",
         last_name: "",
         birth_date: new Date(2000, 1, 1),
-        position: position.en.analyst,
+        position: positionData.en.analyst,
         active: false,
         can_simulate_budget: false,
         can_submit_budget: false,
@@ -350,14 +381,20 @@ export default {
         is_admin: false,
       },
       employees: [],
-      position: position.list,
-      position_pt: position.pt,
+      position: positionData.list,
+      position_pt: positionData.en,
       buttonCreateDisable: true,
       buttonUpdateDisable: true,
       buttonNewDisable: false,
       disableForm: true,
       disableAlert: false,
-      alertList: []
+      alertList: [],
+      successMessage: '',
+      successAlert: false,
+      removeAlert: false,
+      removeMessage: '',
+      removeAlertError: false,
+      removeMessageError: '',
     };
   },
   async mounted() {
@@ -424,4 +461,5 @@ export default {
 th {
   text-align: center;
 }
+
 </style>
