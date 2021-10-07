@@ -327,6 +327,9 @@ export default {
       }
       
     },
+    editEmployee: function () {
+      console.log("ok")
+    },
     onReset: function (event) {
       event.preventDefault();
       this.employee.email = ""
@@ -394,7 +397,7 @@ export default {
       removeAlert: false,
       removeMessage: '',
       removeAlertError: false,
-      removeMessageError: '',
+      removeMessageError: ''
     };
   },
   async mounted() {
