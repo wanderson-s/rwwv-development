@@ -4,7 +4,7 @@ from app.model.enum import EnumEmploymentType
 
 
 class BaseEmployeeNoPassword(BaseModel):
-    email: str = None
+    email: str = Field(None, regex="^[a-z0-9.]+@taimin\.com\.br")
     active: bool = False
     # personal
     # cpf: str
@@ -21,7 +21,10 @@ class BaseEmployeeNoPassword(BaseModel):
 
 
 class BaseEmployee(BaseEmployeeNoPassword):
-    password: str = None
+    password: str = Field(
+        ...,
+        regex="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%\*#\?\&])[A-Za-z\d@$!%\*#\?\&]{8,}$",
+    )
 
     class Config:
         orm_mode = True
@@ -35,7 +38,6 @@ class BaseEmployeeToUpdate(BaseEmployee):
     )
     active: bool = False
     # personal
-    # cpf: str
     first_name: str = None
     last_name: str = None
     birth_date: date = None
