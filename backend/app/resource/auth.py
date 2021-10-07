@@ -48,4 +48,11 @@ def init_app(app: FastAPI):
     ):
         return auth.check_token(access_token=access_token, db=db)
 
+    @router.get("/get-me", responses=CKECK_TOKEN)
+    async def get_get_me(
+        access_token: str = Query(..., regex=settings.jwt_regex),
+        db: Session = Depends(get_db),
+    ):
+        return auth.get_me(access_token=access_token, db=db)
+
     app.include_router(router=router, prefix=settings.api_v1, tags=["Authorization"])

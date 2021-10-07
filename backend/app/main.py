@@ -1,3 +1,8 @@
+import os, sys
+
+# configuring this folder with the main module.
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 from fastapi import FastAPI
 from app.config import cors
 from app.resource import bu
@@ -16,8 +21,8 @@ def create_app():
         version="0.1.0",
         description="Backend para gerenciamento de orçamento.",
     )
-    auth.init_app(app=app)
     cors.init_app(app=app)
+    auth.init_app(app=app)
     tables.init_app(app=app)
     employee.init_app(app=app)
     bu.init_app(app=app)
