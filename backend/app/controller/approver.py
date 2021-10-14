@@ -22,16 +22,18 @@ def validade_approver(appro: BaseApprover, db: Session) -> None:
     if not employee:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Employee id does not exists.",
+            # detail="Employee id does not exists.",
+            detail="O funcionário informado não existe.",
         )
     if not select_budget_by_budget_id(budget_id=appro.fk_id_budget, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Budget id does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O orçamento informado não existe.",  # detail="Budget id does not exists."
         )
     if not employee.can_approve_budget:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="It is not Approver. Only employee with approving role can be used.",
+            detail="Somente uma pessoa com permissões de approve ser selecionada.",
         )
 
 
@@ -41,7 +43,7 @@ def insert_approver(appro: BaseApprover, db: Session) -> BaseModelApprover:
         approver_id=appro.fk_id_approver, budget_id=appro.fk_id_budget, db=db
     ):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Approver already exists."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="O aprovador já existe"
         )
     approver = Approver(**appro.dict(by_alias=False))
     db.add(approver)
@@ -68,7 +70,7 @@ def update_approver(id: int, appro: BaseApprover, db: Session) -> BaseModelAppro
     if not approver:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Approver does not exists.",
+            detail="O aprovador não existe.",
         )
 
     db.query(Approver).filter(Approver.id == id).update(
@@ -84,7 +86,7 @@ def delete_approver(id: int, db: Session) -> BaseModelApprover:
     if not approver:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Approver does not exists.",
+            detail="O aprovador não existe.",
         )
     data = BaseModelApprover.from_orm(approver)
     db.delete(approver)

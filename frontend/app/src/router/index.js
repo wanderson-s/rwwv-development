@@ -20,6 +20,12 @@ const routes = [
     path: '/orcamento',
     name: 'Orçamento',
     component: () => import('../views/Orcamento.vue')
+  },
+  {
+    path: '/bu',
+    name: 'bu',
+    component: () => import('../views/Business.vue'),
+    props: true
   }
 ]
 

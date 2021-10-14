@@ -1,12 +1,58 @@
 <template>
-    <nav class="navbar navbar-expand-lg">
-        <div class="item-pages">
-            <a v-for="item in menuItem" :key=item.title class="navbar-brand" @click="$router.push(item.url)" :href="item.url">
-                <img src="../assets/employee.png" width="30" height="30" class="d-inline-block align-top" alt="">
-                {{ item.title }}
-            </a>
-        </div>
-    </nav>
+	<nav class="navbar navbar-expand-lg border border-danger px-4 py-3 d-flex justify-content-between">
+		<div class="navegation">
+			<a 
+				class="navbar-brand" 
+				@click="$router.push('/')" 
+				href="/"
+				data-bs-toggle="tooltip" 
+				data-bs-placement="bottom" 
+				title="Tela de inicio"
+			>
+				<i class="bi bi-house-fill"></i>
+				Inicio
+			</a>
+			<a 
+				class="navbar-brand" 
+				@click="$router.push('/funcionario')" 
+				href="/funcionario"
+				data-bs-toggle="tooltip" 
+				data-bs-placement="bottom" 
+				title="Tela de funcionários"
+			>
+				<i class="bi bi-people-fill"></i>
+				Funcionários
+			</a>
+			<a 
+				class="navbar-brand" 
+				@click="$router.push('/orcamento')" 
+				href="/orcamento"
+				data-bs-toggle="tooltip" 
+				data-bs-placement="bottom" 
+				title="Tela de orçamentos"
+			>
+				<i class="bi bi-cash-stack"></i>
+				Orçamentos
+			</a>
+			<a 
+				class="navbar-brand" 
+				@click="$router.push('/bu')" 
+				href="/bu"
+				data-bs-toggle="tooltip" 
+				data-bs-placement="bottom" 
+				title="Tela de BUs"
+			>
+				<i class="bi bi-briefcase-fill"></i>
+				BUs
+			</a>
+		</div>
+		<div class="user">
+			<a class="navbar-brand" @click="$router.push('/orcamento')" href="/orcamento">
+				<i class="bi bi-person-circle"></i>
+				Usuário
+			</a>
+		</div>
+	</nav>
 </template>
 
 <script>
@@ -15,43 +61,31 @@ export default {
     name: 'Navbar',
     data () {
         return {
-            menuItem: [
-                {
-                    title: 'Inicio',
-                    url: '/',
-                    //img:  "../assets/home.png"
-                },
-                {
-                    title: 'Funcionários',
-                    url: '/funcionario',
-                    //img: "../assets/employee.png"
-                },
-                {
-                    title: 'Orçamentos',
-                    url: '/orcamento',
-                    //img: "../assets/budget.png"
-                }
-            ]
         }
     },
-    async mounted (){
-        
-    }
 }
 </script>
 
 <style scoped>
-.item-pages {
-    padding: 10px 25px 10px;
-
+.bi {
+	font-size: 28px;
 }
 .navbar {
-    margin: 0px 4px;
-    background-color: #dc3545;
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
+  background-color: #dc3545;
 }
 .navbar-brand {
-    color: white;
+	color: white;
+	padding: 5px; 
+	border: #dc3545 solid 1px;
+	border-radius: 7px;
 }
+
+.navbar-brand:hover, 
+.navbar-brand:focus, 
+.navbar-brand:active, 
+.open .dropdown-toggle.navbar-brand {  
+ background-color: #d04f5c; 
+ border: white solid 1px;
+} 
+ 
 </style>

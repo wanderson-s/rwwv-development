@@ -56,3 +56,8 @@ export default {
 	align-content: flex-start;
 }
 </style>
+<style>
+.col-12.required .form-label:after {
+  content:"*";color:red;
+}
+</style>

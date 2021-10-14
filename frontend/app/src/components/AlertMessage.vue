@@ -1,12 +1,14 @@
 <template>
-	<div 
-		v-if="alertShow" 
-		class="alert" 
-		:class="alertType" 
-		role="alert" 
-		>
-		{{ alertText }}
-	</div>
+	<transition name="fade">
+		<div 
+			v-if="alertShow" 
+			class="alert" 
+			:class="alertType" 
+			role="alert" 
+			>
+			{{ alertText }}
+		</div> 
+	</transition>
 </template>
 
 <script>
@@ -25,13 +27,12 @@ export default {
 			default: 'alert-danger'
 		}
 	}
-
 }
 </script>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .7s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;

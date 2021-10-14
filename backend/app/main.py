@@ -13,6 +13,7 @@ from app.resource import approver
 from app.resource import month
 from app.resource import status_budget
 from app.model import tables
+from app.logging.logger import logger
 
 
 def create_app():

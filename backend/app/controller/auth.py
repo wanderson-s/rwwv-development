@@ -90,7 +90,7 @@ def generate_token(user: BaseLogin, db: Session) -> BaseModelTokens:
     )
     if not employee:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user or password."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Usuário ou senha invalida."
         )
     token = get_token_enable(id=employee.id, db=db)
     return token if token else create_token(employee=employee, db=db)
@@ -106,7 +106,7 @@ def refresh_token(
     )
     if not token:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh-token invalido."
         )
     if token and token.exp > datetime.utcnow():
         return token
@@ -119,15 +119,15 @@ def check_token(access_token: str, db: Session) -> dict:
     token = db.query(Token).filter(Token.access_token == access_token).first()
     if not token:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Token invalido."
         )
     try:
         jwt.decode(jwt=access_token, key=settings.jwt_secret, algorithms="HS256")
-        return {"detail": "Valid token."}
+        return {"detail": "Token valido."}
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_206_PARTIAL_CONTENT,
-            detail=str(error) or "Invalid token.",
+            detail=str(error) or "Token invalido.",
         )
 
 
@@ -135,12 +135,12 @@ def get_me(access_token: str, db: Session) -> dict:
     token = db.query(Token).filter(Token.access_token == access_token).first()
     if not token:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Token invalido."
         )
     try:
         return jwt.decode(jwt=access_token, key=settings.jwt_secret, algorithms="HS256")
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_206_PARTIAL_CONTENT,
-            detail=str(error) or "Invalid token.",
+            detail=str(error) or "Token invalido.",
         )

@@ -23,7 +23,8 @@ def insert_status_budget(
 ) -> BaseModelStatusBudget:
     if not select_budget_by_budget_id(budget_id=status_bud.fk_id_budget, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Budget id does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O orçamento informado não existe.",
         )
     if status_bud.current:
         change_status_to_disable(budget_id=status_bud.fk_id_budget, db=db)
@@ -49,12 +50,13 @@ def update_status_budget(
     if not status:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Status Budget id does not exists.",
+            detail="O status do orçamento não existe.",
         )
     row = status_bud.dict(exclude_none=True)
     if not row:
         raise HTTPException(
-            status_code=status.HTTP_206_PARTIAL_CONTENT, detail="No data to change."
+            status_code=status.HTTP_206_PARTIAL_CONTENT,
+            detail="Não há dados para serem alterados.",
         )
     db.query(StatusBudget).filter(StatusBudget.id == id).update(
         row, synchronize_session=False
@@ -67,7 +69,8 @@ def update_status_budget(
 def delete_status_budget(id: int, db: Session) -> BaseModelStatusBudget:
     if not select_status_budget_by_id(id=id, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O status de orçamento não existe.",
         )
     status = db.query(StatusBudget).filter(StatusBudget.id == id).first()
     data = BaseModelStatusBudget.from_orm(status)

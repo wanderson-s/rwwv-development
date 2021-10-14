@@ -14,7 +14,8 @@ export default {
     props:{
         buttonText: {
             type: String,
-            default: ''},
+            default: ''
+        },
         buttonColor: {
             type: String,
             default: 'btn btn-primary'
