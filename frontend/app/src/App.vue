@@ -56,3 +56,16 @@ export default {
 	align-content: flex-start;
 }
 </style>
+<style>
+.col-12.required .form-label:after {
+  content:"*";color:red;
+}
+table {
+  border-collapse: collapse;
+  border-radius: 7px;
+  overflow: hidden;
+}
+th {
+  text-align: center;
+}
+</style>

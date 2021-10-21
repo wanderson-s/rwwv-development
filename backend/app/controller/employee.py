@@ -15,7 +15,8 @@ from app.schema.output.employee import BaseModelEmployee
 def insert_employee(empl: BaseEmployee, db: Session) -> BaseModelEmployee:
     if select_employee_by_email(email=empl.email, db=db, ilike=False):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O email informado já existe.",
         )
     empl.password = md5(empl.password.encode()).hexdigest()
     employee = Employee(**empl.dict())
@@ -37,6 +38,10 @@ def select_employee_by_email(
     return db.query(Employee).filter(Employee.email == email).first()
 
 
+def select_all_employee_approve(db: Session):
+    return db.query(Employee).filter(Employee.can_approve_budget == True).all()
+
+
 def select_employee_all(db: Session) -> List[BaseEmployee]:
     return db.query(Employee).all()
 
@@ -47,14 +52,16 @@ def update_employee(
     user = select_employee_by_id(id=id, db=db)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O funcionário informado não existe.",
         )
     if empl.password:
         empl.password = md5(empl.password.encode()).hexdigest()
     row = empl.dict(exclude_none=True)
     if not row:
         raise HTTPException(
-            status_code=status.HTTP_206_PARTIAL_CONTENT, detail="No data to change."
+            status_code=status.HTTP_206_PARTIAL_CONTENT,
+            detail="Não há dados para ser alterado.",
         )
     db.query(Employee).filter(Employee.id == id).update(row, synchronize_session=False)
     db.commit()
@@ -65,13 +72,14 @@ def update_employee(
 def delete_employee(id: int, db: Session) -> BaseModelEmployee:
     if not select_employee_by_id(id=id, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O funcionário informado não existe.",
         )
     employee = db.query(Employee).filter(Employee.id == id).first()
     if employee.business:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Problem to exclude, the employee has a Business Unit.",
+            detail="O funcionário informado não pode ser removido, pois há BUs vinculada ao mesmo.",
         )
     db.delete(employee)
     db.commit()

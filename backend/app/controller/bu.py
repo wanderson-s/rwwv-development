@@ -25,16 +25,19 @@ def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
     if not select_employee_by_id(id=buss_u.fk_id_employees, db=db):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Employee id does not exists.",
+            detail="O funcionário informado não existe.",
         )
     if (
         db.query(BusinessUnit)
-        .filter(BusinessUnit.name == buss_u.name, BusinessUnit.product == buss_u.product)
+        .filter(
+            BusinessUnit.name == buss_u.name,
+            BusinessUnit.product_family == buss_u.product_family,
+        )
         .first()
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bu and product already exists.",
+            detail="A BU e familia de produto já existe.",
         )
     bu = BusinessUnit(**buss_u.dict(by_alias=False))
     db.add(bu)
@@ -48,12 +51,13 @@ def update_bu(id: int, buss_u: BaseBuToUpdate, db: Session) -> BaseModelBu:
     if not bu:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Business id does not exists.",
+            detail="A BU informada não existe.",
         )
     row = buss_u.dict(exclude_none=True)
     if not row:
         raise HTTPException(
-            status_code=status.HTTP_206_PARTIAL_CONTENT, detail="No data to change."
+            status_code=status.HTTP_206_PARTIAL_CONTENT,
+            detail="Não há dados para ser alterado.",
         )
     db.query(BusinessUnit).filter(BusinessUnit.id == id).update(
         row, synchronize_session=False
@@ -66,13 +70,13 @@ def update_bu(id: int, buss_u: BaseBuToUpdate, db: Session) -> BaseModelBu:
 def delete_bu(id: int, db: Session) -> BaseModelBu:
     if not select_bu(id=id, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Id does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="A BU informada não existe."
         )
     bu = db.query(BusinessUnit).filter(BusinessUnit.id == id).first()
     if bu.month:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot delete a BU that has Month references.",
+            detail="Você não pode deletar uma BU que está atrelada a um orçamento.",
         )
     data = BaseModelBu.from_orm(bu)
     db.delete(bu)

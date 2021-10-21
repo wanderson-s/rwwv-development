@@ -15,11 +15,12 @@ def exists_month(mon: BaseMonth, db: Session):
 def validation(mon: BaseMonth, db: Session) -> None:
     if not select_budget_by_budget_id(budget_id=mon.fk_id_budget, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Budget does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O orçamento informado não existe.",
         )
     if not select_bu(id=mon.fk_id_business_unit, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="BU does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="O BU informada não existe."
         )
 
 
@@ -45,14 +46,15 @@ def select_month_by_budget_id(budget_id: int, db: Session) -> BaseModelBudget:
 def update_month(id: int, mon: BaseMonthUpdate, db: Session) -> BaseModelMonth:
     if not select_month(id=id, db=db):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Month does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="O Mês informado não existe."
         )
 
     validation(mon=mon, db=db)
     month = mon.dict(exclude_none=True, by_alias=False)
     if not month:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="No data to change.."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Não há nenhum dado novo para ser alterado",
         )
 
     db.query(Month).filter(Month.id == id).update(month)
@@ -64,7 +66,8 @@ def delete_month(id: int, db: Session) -> BaseModelMonth:
     month = select_month(id=id, db=db)
     if not month:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Month does not exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O mês selecionado já existe.",
         )
 
     data = BaseModelMonth.from_orm(month)

@@ -1,12 +1,13 @@
 <template>
 	<div 
 		v-if="alertShow" 
-		class="alert" 
+		class="alert alert-dismissible fade show" 
 		:class="alertType" 
 		role="alert" 
 		>
 		{{ alertText }}
-	</div>
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div> 
 </template>
 
 <script>
@@ -25,15 +26,5 @@ export default {
 			default: 'alert-danger'
 		}
 	}
-
 }
 </script>
-
-<style scoped>
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
-</style>

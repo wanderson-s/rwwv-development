@@ -1,4 +1,5 @@
 from typing import List, Union
+
 from app.common.headers import decode_token_is_admin
 from app.common.response import BAD_REQUEST_400, PARTIAL_CONTENT_206, UNAUTHORIZED_401
 from app.config.settings import settings
@@ -38,8 +39,11 @@ def init_app(app: FastAPI):
     )
     async def get_employees(
         email: str = Query(None, regex="^[a-z0-9.]+@taimin\.com\.br"),
+        approver: bool = Query(False),
         db: Session = Depends(get_db),
     ):
+        if approver:
+            return employee.select_all_employee_approve(db=db)
         if email:
             return employee.select_employee_by_email(email=email, db=db)
         return employee.select_employee_all(db=db)

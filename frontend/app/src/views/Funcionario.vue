@@ -1,9 +1,11 @@
 <template>
   <div id="local-main" class="container-fluid p-1 pe-2">
-    <div  id="form" class="container d-flex justify-content-center">
-      <h3 class="card-title pb-0 pt-0">Funcionários</h3>
-    </div>
-    <form class="row g-0 border border-danger rounded p-3" @submit="onSubmit">
+    <DefaultTitle 
+      titleText="Funcionários" 
+      titleIcon="bi-people-fill"
+    />
+
+    <form class="row g-0 p-3 px-4" @submit="onSubmit">
       <AlertMessage :alertShow="disableAlert" v-for="al in alertList" :key="al" :alertText="al" alertType="alert-danger"/>
       <AlertMessage :alertShow="successAlert" :alertText="successMessage" alertType="alert-success"/>
 
@@ -151,18 +153,18 @@
       </div>
 
       <div class="buttons mt-4 d-flex flex-row p-0">
-        <DefaultButton class="action-button" buttonText="Novo" @click="enableForm" :buttonActive="buttonNewDisable" buttonColor="btn btn-primary" buttonIcon="bi bi-plus-circle-fill" buttonType="button"/>
-        <DefaultButton class="action-button" buttonText="Salvar" :buttonActive="buttonCreateDisable" buttonColor="btn btn-success" buttonIcon="bi bi-check-circle-fill"/>
-        <DefaultButton class="action-button" buttonText="Alterar" :buttonActive="buttonUpdateDisable" buttonColor="btn btn-dark" buttonIcon="bi-arrow-up-circle-fill" buttonType="button" />
-        <DefaultButton class="action-button" buttonText="Cancelar" @click="onReset" buttonColor="btn btn-danger" buttonIcon="bi-x-circle-fill" buttonType="reset"/>
+        <DefaultButton class="action-button me-3" buttonText="Novo" @click="enableForm" :buttonActive="buttonNewDisable" buttonColor="btn btn-primary" buttonIcon="bi bi-plus-circle-fill" buttonType="button"/>
+        <DefaultButton class="action-button me-3" buttonText="Salvar" :buttonActive="buttonCreateDisable" buttonColor="btn btn-success" buttonIcon="bi bi-check-circle-fill"/>
+        <DefaultButton class="action-button me-3" buttonText="Alterar" @click="changeEmployee" :buttonActive="buttonUpdateDisable" buttonColor="btn btn-dark" buttonIcon="bi-arrow-up-circle-fill" buttonType="button" />
+        <DefaultButton class="action-button me-3" buttonText="Cancelar" @click="onReset" buttonColor="btn btn-danger" buttonIcon="bi-x-circle-fill" buttonType="reset"/>
       </div>
     </form>
 
-    <div class="table-func d-flex row g-0 border border-danger rounded p-3 mt-2">
+    <div class="table-func d-flex row g-0 border border-danger rounded p-3 mt-1 px-4">
       <AlertMessage :alertShow="removeAlert" :alertText="removeMessage" alertType="alert-success"/>
       <AlertMessage :alertShow="removeAlertError" :alertText="removeMessageError" alertType="alert-danger"/>
       <h5 class="card-title">Listagem de Funcionários</h5>
-      <table  class="table table-bordered">
+      <table class="table table-bordered shadow">
         <thead class="table table-dark border border-white">
           <tr class="border border-secondary">
             <th scope="col">E-mail</th>
@@ -175,6 +177,7 @@
             <th scope="col">Aprovar</th>
             <th scope="col">Ver</th>
             <th scope="col" style="width: 100px;">Ação</th>
+            <th scope="col" style="width: 100px;">BUs</th>
           </tr>
         </thead>
         <tbody>
@@ -189,8 +192,35 @@
             <td class="active"><i :class="isActive(empl.can_read_budget)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
             <td class="active"><i :class="isActive(empl.is_admin)" style="font-size: 1.2rem; color: cornflowerblue;" ></i> </td>
             <td class="d-flex flex-row justify-content-around" style="max-width: 100px;">
-              <button @click="loadEmployee(empl.id)" v-scroll-to="'#local-main'" type="button" class="btn btn-primary btn-sm m-0"><i class="bi bi-eye-fill"></i></button>
-              <button @click="removeEmployee(empl.id)" type="button" class="btn btn-danger btn-sm m-0" ><i class="far fa-trash-alt"></i></button>
+              <button 
+                @click="loadEmployee(empl.id)" 
+                v-scroll-to="'#local-main'" 
+                type="button" 
+                class="btn btn-primary btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Ver dados do funcionário"
+                ><i class="bi bi-eye-fill"></i>
+              </button>
+              <button 
+                @click="removeEmployee(empl.id)" 
+                type="button" 
+                class="btn btn-danger btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Excluir funcionário"
+              ><i class="far fa-trash-alt"></i></button>
+            </td>
+            <td style="max-width: 100px; text-align: center;">
+              <button
+                @click="redirectToBu(empl.id)"
+                type="button" 
+                class="btn btn-success btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Ver BUs"
+              ><i class="bi bi-arrow-up-right-square-fill"></i>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -204,6 +234,7 @@
 import checkLogin from "../js/checkLogin.js";
 import redirectToLogin from "../js/redirectLogin";
 import DefaultButton from "../components/DefaultButton.vue";
+import DefaultTitle from "../components/DefaultTitle.vue";
 import AlertMessage from "../components/AlertMessage.vue";
 import Employee from '../services/employee.js'
 
@@ -237,6 +268,7 @@ export default {
   name: "Employee",
   components: {
     DefaultButton,
+    DefaultTitle,
     AlertMessage
   },
   methods: {
@@ -267,38 +299,40 @@ export default {
         })
     },
     createEmployee: function () {
-      const data = {...this.employee}
-      console.log(data)
-      data.position = positionData.pt[data.position]
-      data.birth_date = data.birth_date.toISOString().split('T')[0]
-      console.log(data)
-      
-      Employee.createEmployee(data)
-        .then((resp) => {
-          this.listEmployee()
-          this.successMessage = 'Funcionário adicionado com sucesso.'
-          this.successAlert = true
-          setTimeout(() => {
-            this.successMessage = ''
-            this.successAlert = false
-          }, 10000)
-        }).catch((err) => {
-          if (err.response.status == 422) {
-            console.log(err.response.data)
-            console.log(err.request.data)
-            this.alertList = err.response.data.detail.map((d) => {
-              const key = d.loc.slice(-1)[0]
-              return alertMsg[key]
-            })
-          }else if (err.response.status == 400) {
-            this.alertList = ['O e-mail informado já existe.']
-          }
-          this.disableAlert = true
-          setTimeout(() => {
-            this.alertList = []
-            this.disableAlert = false
-          }, 10000)
-        })
+      if (confirm("Tem certeza que deseja adicionar o funcionário?")){
+        const data = {...this.employee}
+        console.log(data)
+        data.position = positionData.pt[data.position]
+        data.birth_date = data.birth_date.toISOString().split('T')[0]
+        console.log(data)
+        
+        Employee.createEmployee(data)
+          .then((resp) => {
+            this.listEmployee()
+            this.onReset()
+            this.successMessage = 'Funcionário adicionado com sucesso.'
+            this.successAlert = true
+            setTimeout(() => {
+              this.successMessage = ''
+              this.successAlert = false
+            }, 10000)
+          }).catch((err) => {
+            if (err.response.status == 422) {
+              console.log(err.response.data)
+              this.alertList = err.response.data.detail.map((d) => {
+                const key = d.loc.slice(-1)[0]
+                return alertMsg[key]
+              })
+            }else if (err.response.status == 400) {
+              this.alertList = ['O e-mail informado já existe.']
+            }
+            this.disableAlert = true
+            setTimeout(() => {
+              this.alertList = []
+              this.disableAlert = false
+            }, 10000)
+          })
+      }
     },
     removeEmployee: function (id) {
       if (confirm("Você tem certeza?")){
@@ -327,11 +361,46 @@ export default {
       }
       
     },
-    editEmployee: function () {
-      console.log("ok")
+    changeEmployee: function () {
+      if (confirm("Tem certeza que deseja alterar o funcionário?")) {
+        const data = {...this.employee}
+        console.log(data)
+        data.position = positionData.pt[data.position]
+        try {
+          data.birth_date = data.birth_date.toISOString().split('T')[0]
+        } catch (error) {
+          console.log('Erro ao converter a data.')
+        }
+        Employee.changeEmployee(data.id, data)
+          .then((resp) => {
+            this.listEmployee()
+            this.onReset()
+            this.successMessage = 'Funcionário alterado com sucesso.'
+            this.successAlert = true
+            setTimeout(() => {
+              this.successMessage = ''
+              this.successAlert = false
+            }, 10000)
+          }).catch((err) => {
+            console.log(err)
+            if (err.response.status == 422) {
+              console.log(err.response.data)
+              this.alertList = err.response.data.detail.map((d) => {
+                const key = d.loc.slice(-1)[0]
+                return alertMsg[key]
+              })
+            }else if (err.response.status == 400) {
+              this.alertList = [err.response.data.detail]
+            }
+            this.disableAlert = true
+            setTimeout(() => {
+              this.alertList = []
+              this.disableAlert = false
+            }, 10000)
+          })
+      }
     },
     onReset: function (event) {
-      event.preventDefault();
       this.employee.email = ""
       this.employee.password = ""
       this.employee.first_name = ""
@@ -365,6 +434,16 @@ export default {
       this.disableForm = false
       this.buttonCreateDisable = false
       this.buttonNewDisable = true
+    },
+    redirectToBu: function (id) {
+      this.$router.push(
+        { 
+          name: 'bu', 
+          params: { 
+            employeeId: id
+          }
+        }
+      )
     }
   },
   data () {
@@ -437,23 +516,24 @@ export default {
   min-width: 30%;
   padding: 5px 3px 5px 3px;
 }
-.col-12.required .form-label:after {
-  content:"*";color:red;
-}
+
 #div-min-len {
   max-width: 15% !important;
   min-width: 5%;
-}
-.action-button{
-  margin-right: 20px;
 }
 .form-check {
   margin: 10px;
   margin-left: 20px;
 }
-
+form {
+  border-bottom: red solid 1px;
+  border-left: red solid 1px;
+  border-right: red solid 1px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 /* tables */
-.table-func {
+.table-func, .container {
   min-width: 100%;
 }
 
@@ -461,8 +541,6 @@ export default {
   text-align: center;
   width: 100px;
 }
-th {
-  text-align: center;
-}
+
 
 </style>

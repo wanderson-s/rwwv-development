@@ -1,10 +1,9 @@
-import axios from "axios";
+import { http } from '../services/config.js'
 
-const baseUrl = "http://localhost:8001/v1/auth"
 async function login (data) {
     try {
         console.log("LOGIN USER")
-        const response = await axios.post(baseUrl + "/login", data);
+        const response = await http.post("/auth/login", data);
         console.log(response)
         localStorage.setItem("access_token", response.data.access_token)
         localStorage.setItem("refresh_token", response.data.refresh_token)
