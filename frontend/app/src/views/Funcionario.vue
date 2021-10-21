@@ -155,7 +155,7 @@
       <div class="buttons mt-4 d-flex flex-row p-0">
         <DefaultButton class="action-button me-3" buttonText="Novo" @click="enableForm" :buttonActive="buttonNewDisable" buttonColor="btn btn-primary" buttonIcon="bi bi-plus-circle-fill" buttonType="button"/>
         <DefaultButton class="action-button me-3" buttonText="Salvar" :buttonActive="buttonCreateDisable" buttonColor="btn btn-success" buttonIcon="bi bi-check-circle-fill"/>
-        <DefaultButton class="action-button me-3" buttonText="Alterar" :buttonActive="buttonUpdateDisable" buttonColor="btn btn-dark" buttonIcon="bi-arrow-up-circle-fill" buttonType="button" />
+        <DefaultButton class="action-button me-3" buttonText="Alterar" @click="changeEmployee" :buttonActive="buttonUpdateDisable" buttonColor="btn btn-dark" buttonIcon="bi-arrow-up-circle-fill" buttonType="button" />
         <DefaultButton class="action-button me-3" buttonText="Cancelar" @click="onReset" buttonColor="btn btn-danger" buttonIcon="bi-x-circle-fill" buttonType="reset"/>
       </div>
     </form>
@@ -164,7 +164,7 @@
       <AlertMessage :alertShow="removeAlert" :alertText="removeMessage" alertType="alert-success"/>
       <AlertMessage :alertShow="removeAlertError" :alertText="removeMessageError" alertType="alert-danger"/>
       <h5 class="card-title">Listagem de Funcionários</h5>
-      <table class="table table-bordered">
+      <table class="table table-bordered shadow">
         <thead class="table table-dark border border-white">
           <tr class="border border-secondary">
             <th scope="col">E-mail</th>
@@ -299,38 +299,40 @@ export default {
         })
     },
     createEmployee: function () {
-      const data = {...this.employee}
-      console.log(data)
-      data.position = positionData.pt[data.position]
-      data.birth_date = data.birth_date.toISOString().split('T')[0]
-      console.log(data)
-      
-      Employee.createEmployee(data)
-        .then((resp) => {
-          this.listEmployee()
-          this.successMessage = 'Funcionário adicionado com sucesso.'
-          this.successAlert = true
-          setTimeout(() => {
-            this.successMessage = ''
-            this.successAlert = false
-          }, 10000)
-        }).catch((err) => {
-          if (err.response.status == 422) {
-            console.log(err.response.data)
-            console.log(err.request.data)
-            this.alertList = err.response.data.detail.map((d) => {
-              const key = d.loc.slice(-1)[0]
-              return alertMsg[key]
-            })
-          }else if (err.response.status == 400) {
-            this.alertList = ['O e-mail informado já existe.']
-          }
-          this.disableAlert = true
-          setTimeout(() => {
-            this.alertList = []
-            this.disableAlert = false
-          }, 10000)
-        })
+      if (confirm("Tem certeza que deseja adicionar o funcionário?")){
+        const data = {...this.employee}
+        console.log(data)
+        data.position = positionData.pt[data.position]
+        data.birth_date = data.birth_date.toISOString().split('T')[0]
+        console.log(data)
+        
+        Employee.createEmployee(data)
+          .then((resp) => {
+            this.listEmployee()
+            this.onReset()
+            this.successMessage = 'Funcionário adicionado com sucesso.'
+            this.successAlert = true
+            setTimeout(() => {
+              this.successMessage = ''
+              this.successAlert = false
+            }, 10000)
+          }).catch((err) => {
+            if (err.response.status == 422) {
+              console.log(err.response.data)
+              this.alertList = err.response.data.detail.map((d) => {
+                const key = d.loc.slice(-1)[0]
+                return alertMsg[key]
+              })
+            }else if (err.response.status == 400) {
+              this.alertList = ['O e-mail informado já existe.']
+            }
+            this.disableAlert = true
+            setTimeout(() => {
+              this.alertList = []
+              this.disableAlert = false
+            }, 10000)
+          })
+      }
     },
     removeEmployee: function (id) {
       if (confirm("Você tem certeza?")){
@@ -359,11 +361,46 @@ export default {
       }
       
     },
-    editEmployee: function () {
-      console.log("ok")
+    changeEmployee: function () {
+      if (confirm("Tem certeza que deseja alterar o funcionário?")) {
+        const data = {...this.employee}
+        console.log(data)
+        data.position = positionData.pt[data.position]
+        try {
+          data.birth_date = data.birth_date.toISOString().split('T')[0]
+        } catch (error) {
+          console.log('Erro ao converter a data.')
+        }
+        Employee.changeEmployee(data.id, data)
+          .then((resp) => {
+            this.listEmployee()
+            this.onReset()
+            this.successMessage = 'Funcionário alterado com sucesso.'
+            this.successAlert = true
+            setTimeout(() => {
+              this.successMessage = ''
+              this.successAlert = false
+            }, 10000)
+          }).catch((err) => {
+            console.log(err)
+            if (err.response.status == 422) {
+              console.log(err.response.data)
+              this.alertList = err.response.data.detail.map((d) => {
+                const key = d.loc.slice(-1)[0]
+                return alertMsg[key]
+              })
+            }else if (err.response.status == 400) {
+              this.alertList = [err.response.data.detail]
+            }
+            this.disableAlert = true
+            setTimeout(() => {
+              this.alertList = []
+              this.disableAlert = false
+            }, 10000)
+          })
+      }
     },
     onReset: function (event) {
-      event.preventDefault();
       this.employee.email = ""
       this.employee.password = ""
       this.employee.first_name = ""
@@ -503,9 +540,6 @@ form {
 .active {
   text-align: center;
   width: 100px;
-}
-th {
-  text-align: center;
 }
 
 

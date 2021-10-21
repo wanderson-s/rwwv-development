@@ -60,4 +60,12 @@ export default {
 .col-12.required .form-label:after {
   content:"*";color:red;
 }
+table {
+  border-collapse: collapse;
+  border-radius: 7px;
+  overflow: hidden;
+}
+th {
+  text-align: center;
+}
 </style>

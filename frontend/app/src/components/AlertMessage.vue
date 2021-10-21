@@ -1,14 +1,13 @@
 <template>
-	<transition name="fade">
-		<div 
-			v-if="alertShow" 
-			class="alert" 
-			:class="alertType" 
-			role="alert" 
-			>
-			{{ alertText }}
-		</div> 
-	</transition>
+	<div 
+		v-if="alertShow" 
+		class="alert alert-dismissible fade show" 
+		:class="alertType" 
+		role="alert" 
+		>
+		{{ alertText }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div> 
 </template>
 
 <script>
@@ -29,12 +28,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .7s;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
-</style>

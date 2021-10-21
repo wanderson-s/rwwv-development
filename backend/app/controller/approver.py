@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from app.model.tables import Approver
+from app.model.tables import Approver, Employee
 from app.schema.output.approver import BaseModelApprover
 from app.schema.input.approver import BaseApprover
 from app.controller.employee import select_employee_by_id

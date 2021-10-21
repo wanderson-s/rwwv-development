@@ -1,5 +1,5 @@
 <template>
-  <table class="table table-bordered">
+  <table class="table table-bordered shadow">
 		<thead class="table table-dark border border-white">
 			<tr class="border border-secondary">
 				<th scope="col">Nome</th>

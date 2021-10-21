@@ -1,5 +1,5 @@
 <template>
-	<nav class="navbar navbar-expand-lg border border-danger px-4 py-3 d-flex justify-content-between">
+	<nav class="navbar nav-tabs navbar-expand-lg border border-danger px-4 py-3 d-flex justify-content-between">
 		<div class="navegation">
 			<a 
 				class="navbar-brand" 
@@ -25,17 +25,6 @@
 			</a>
 			<a 
 				class="navbar-brand" 
-				@click="$router.push('/orcamento')" 
-				href="/orcamento"
-				data-bs-toggle="tooltip" 
-				data-bs-placement="bottom" 
-				title="Tela de orçamentos"
-			>
-				<i class="bi bi-cash-stack"></i>
-				Orçamentos
-			</a>
-			<a 
-				class="navbar-brand" 
 				@click="$router.push('/bu')" 
 				href="/bu"
 				data-bs-toggle="tooltip" 
@@ -44,6 +33,17 @@
 			>
 				<i class="bi bi-briefcase-fill"></i>
 				BUs
+			</a>
+			<a 
+				class="navbar-brand" 
+				@click="$router.push('/orcamento')" 
+				href="/orcamento"
+				data-bs-toggle="tooltip" 
+				data-bs-placement="bottom" 
+				title="Tela de orçamentos"
+			>
+				<i class="bi bi-cash-stack"></i>
+				Orçamentos
 			</a>
 		</div>
 		<div class="user">
@@ -61,6 +61,7 @@ export default {
     name: 'Navbar',
     data () {
         return {
+
         }
     },
 }

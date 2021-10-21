@@ -38,6 +38,10 @@ def select_employee_by_email(
     return db.query(Employee).filter(Employee.email == email).first()
 
 
+def select_all_employee_approve(db: Session):
+    return db.query(Employee).filter(Employee.can_approve_budget == True).all()
+
+
 def select_employee_all(db: Session) -> List[BaseEmployee]:
     return db.query(Employee).all()
 

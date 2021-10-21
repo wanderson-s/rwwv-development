@@ -1,3 +1,4 @@
+from typing import List, Union
 from app.common.response import BAD_REQUEST_400
 from fastapi import APIRouter
 from fastapi import Depends
@@ -33,7 +34,9 @@ def init_app(app: FastAPI):
     async def get_approver_by_id(approver_id: int, db: Session = Depends(get_db)):
         return approver.select_approver(id=approver_id, db=db)
 
-    @router.get("/approver", response_model=BaseModelApprover)
+    @router.get(
+        "/approver", response_model=Union[BaseModelApprover, List[BaseModelApprover]]
+    )
     async def get_approver(
         employee_id: int = Query(None),
         budget_id: int = Query(None),

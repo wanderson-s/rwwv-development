@@ -29,7 +29,10 @@ def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
         )
     if (
         db.query(BusinessUnit)
-        .filter(BusinessUnit.name == buss_u.name, BusinessUnit.product == buss_u.product)
+        .filter(
+            BusinessUnit.name == buss_u.name,
+            BusinessUnit.product_family == buss_u.product_family,
+        )
         .first()
     ):
         raise HTTPException(

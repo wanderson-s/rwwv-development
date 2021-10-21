@@ -72,7 +72,8 @@
           buttonIcon="bi bi-check-circle-fill"/>
         <DefaultButton 
           class="action-button me-3" 
-          buttonText="Alterar" 
+          buttonText="Alterar"
+          @click="onChange"
           :buttonActive="control.buttons.edit" 
           buttonColor="btn btn-dark" 
           buttonIcon="bi-arrow-up-circle-fill" 
@@ -100,7 +101,7 @@
         alertType="alert-danger"/>
 
       <h5 class="card-title">Listagem de BUs</h5>
-      <table class="table table-bordered">
+      <table class="table table-bordered shadow shadow">
         <thead class="table table-dark border border-white">
           <tr class="border border-secondary">
             <th scope="col">Nome</th>
@@ -164,17 +165,19 @@ export default {
       if (confirm("Você tem certeza que deseja excluir a BU?")) {
         BU.removeBu(id)
         .then( (resp) => {
-          this.listBus(this.localEmployeeIds)
           this.control.events.alerts.table.successShow = true
           this.control.events.alerts.table.successText = 'BU removida com sucesso'
+          this.listBus(this.localEmployeeId)
           this.disableAlertTable()
         }).catch ((err) => {
           console.log(err.response.data)
+          this.control.events.alerts.table.errorShow = true
           if (err.response.status != 422) {
-            this.control.events.alerts.table.errorShow = true
-            this.control.events.alerts.table.errorText = 'Erro ao remover a BU, há um ou mais orçamentos atrelado a ela.'
-            this.disableAlertTable()
+            this.control.events.alerts.table.errorText = err.response.data.detail
+          }else {
+            this.control.events.alerts.table.errorText = 'Erro ao remover a BU.'
           }
+          this.disableAlertTable()
         })
       }
     },
@@ -219,22 +222,24 @@ export default {
     },
     onSubmit(event) {
       event.preventDefault();
-      console.log(this)
       const data = {...this.bu}
       data.employee_id = this.localEmployeeId
-      delete data.id
-      console.log(data)
       BU.createBu(data)
         .then( (resp) => {
-          console.log(resp.data)
           this.listBus(this.localEmployeeId)
-          this.disableForm = true
+          
+          this.onReset()
+
           this.control.events.alerts.form.successShow = true
           this.control.events.alerts.form.successText = 'BU adicionada com sucesso.'
           this.disableAlertForm()
         }).catch( (err) => {
           this.control.events.alerts.form.errorShow = true
-          this.control.events.alerts.form.errorText = 'Error ao inserir a BU, a BU e Familia do produto já existe.'
+          if (err.response.status != 422){
+            this.control.events.alerts.form.errorText = err.response.data.detail
+          }else {
+            his.control.events.alerts.form.errorText = 'Erro ao inserir a nova BU. Por favor, cheque os campos e tente novamente.'
+          }
           this.disableAlertForm()
         })
     },
@@ -243,20 +248,28 @@ export default {
       const data = {...this.bu}
       data.employee_id = this.localEmployeeId
       console.log(data)
-      BU.changeBu(this.bu.id, data)
-        .then( (resp) => {
-          console.log(resp.data)
-          this.listBus(this.localEmployeeId)
-          this.disableForm = true
-          this.control.events.alerts.form.successShow = true
-          this.control.events.alerts.form.successText = 'BU alterada com sucesso.'
-          this.disableAlertForm()
-        }).catch( (err) => {
-          console.log(err.response.data)
-          this.control.events.alerts.form.errorShow = true
-          this.control.events.alerts.form.errorText = 'Error ao alter a BU, ' + err.response.data
-          this.disableAlertForm()
-        })
+      if (confirm('Você tem certeza que deseja alterar?')) {
+        BU.changeBu(this.bu.id, data)
+          .then( (resp) => {
+            console.log(resp.data)
+            this.listBus(this.localEmployeeId)
+
+            this.onReset()
+
+            this.control.events.alerts.form.successShow = true
+            this.control.events.alerts.form.successText = 'BU alterada com sucesso.'
+            this.disableAlertForm()
+          }).catch( (err) => {
+            console.log(err.response.data)
+            this.control.events.alerts.form.errorShow = true
+            if (err.response.status != 422) {
+              this.control.events.alerts.form.errorText = err.response.data.detail
+            }else {
+              this.control.events.alerts.form.errorText = 'Error ao alterar a BU.'
+            }
+            this.disableAlertForm()
+          })
+      }
     },
     disableAlertForm () {
       setTimeout( () => {
@@ -264,7 +277,7 @@ export default {
         this.control.events.alerts.form.successText = ''
         this.control.events.alerts.form.errorShow = false
         this.control.events.alerts.form.errorText = ''
-      }, 7000)
+      }, 15000)
     },
     disableAlertTable () {
       setTimeout( () => {    
@@ -272,7 +285,7 @@ export default {
         this.control.events.alerts.table.successText = ''
         this.control.events.alerts.table.errorShow = false
         this.control.events.alerts.table.errorText = ''
-      }, 7000)
+      }, 15000)
     }
 	},
 	data () {
@@ -348,4 +361,5 @@ form {
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
 }
+
 </style>>
