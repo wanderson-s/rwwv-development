@@ -30,9 +30,13 @@
                   id="bu"
                   v-model="form.bu.name"
                   class="form-select"
+                  :class="borders.name"
                   aria-label="Selecione a BU"
                   @change="listProductFamily()"
                   :disabled="disableForm"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="Selecione uma BU"
                   required
                 >
                   <option :selected="form.bu.name"> {{ form.bu.name }} </option>
@@ -50,10 +54,14 @@
                 <select
                   id="product_family"
                   v-model="form.bu.product_family"
+                  :class="borders.product_family"
                   class="form-select"
-                  aria-label="Selecione a BU"
+                  aria-label="Selecione um produto"
                   @change="accordionOne"
                   :disabled="disableForm"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="Selecione uma familia de produto"
                   required
                 >
                   <option :selected="form.bu.product_family"> {{ form.bu.product_family }} </option>
@@ -71,10 +79,14 @@
                 <select
                   id="approver"
                   v-model="form.bu.approver"
+                  :class="borders.approver"
                   class="form-select"
                   aria-label="Selecione o Aprovador"
                   @change="accordionOne"
                   :disabled="disableForm"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="Selecione o e-mail do aprovador"
                   required
                 >
                   <option :selected="form.bu.approver"> {{ form.bu.approver }} </option>
@@ -124,41 +136,34 @@
                   :disabled="disableForm"
                   id="name"
                   v-model="form.status.name"
+                  :class="borders.status_name"
                   type="text"
                   class="form-control"
                   placeholder="Orçamento referente ao ano de 2022"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="O nome do status precisa ter pelo menos 5 letras."
                 />
               </div>
+
               <div class="selected col-12 required" :class="field_required ? 'required' : ''">
                 <label for="bu" class="form-label">Status</label>
-                <!-- <select
-                  id="bu"
-                  v-model="form.status.status"
-                  class="form-select"
-                  aria-label="Selecione o status"
-                  :disabled="disableForm"
-                  required
-                >
-                  <option :selected="form.status.status"> {{ form.status.status }} </option>
-                  <option 
-                    v-for="b in status.filter((b) => b.value !== form.status.status )" 
-                    :key="b.name" 
-                    :value="b.value">
-                    {{ b.value }}
-                  </option>
-                </select> -->
-
                 <select
                   id="bu"
                   v-model="form.status.status"
+                  :class="borders.status"
                   class="form-select"
                   aria-label="Selecione o status"
                   :disabled="disableForm"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="Por padrão o status inicia como rascunho."
                   required
                 >
                   <option> {{ form.status.status }} </option>
                 </select>
               </div>
+
               <div class="btn-next col-12">
                 <DefaultButton 
                   @click="collapseAccordion('panelsStayOpen-collapseThree', 'year')"
@@ -251,17 +256,12 @@
                   </select>
                 </div>
 
-                <div class="budget col-12" style="margin-right: 0px !important;" :class="field_required ? 'required' : ''">
-                  <label for="name_month" class="form-label">Valor R$</label>
-                  <input
-                    :disabled="disableForm"
-                    id="name_month"
-                    v-model="form.month.value"
-                    type="text"
-                    class="form-control"
-                    placeholder="120.43"
-                  />
-                </div>
+                <currency-input 
+                  :options="{ currency: 'BRL',currencyDisplay: 'hidden',precision: 2, autoDecimalDigits: false }"
+                  :disable="disableForm"
+                  :border='borders.value'
+                  v-model="form.month.value"
+                />
               </div>
               
               <div class="d-flex flex-column bd-highlight" style="width: 100%">
@@ -307,29 +307,45 @@
                       <th scope="col">Tipo</th>
                       <th scope="col">Valor</th>
                       <th scope="col">%</th>
+                      <th scope="col">Remover</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="month in form.months" :key="month.value">
-                      <td>{{ month.year }}</td>
-                      <td>{{ month.month }}</td>
-                      <td>{{ month.type }}</td>
-                      <td>{{ month.value }}</td>
-                      <td>{{ month.description }}</td>
+                      <td class="lines">{{ month.year }}</td>
+                      <td class="lines">{{ month.month }}</td>
+                      <td class="lines">{{ month.type }}</td>
+                      <td class="lines">R$ {{ month.value }}</td>
+                      <td class="lines">{{ month.percent }}</td>
+                      <td class="lines">
+                        <button 
+                          @click="removeLine(month.id)" 
+                          type="button" 
+                          class="btn btn-danger btn-sm m-0"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="left" 
+                          title="Remover linha"
+                          ><i class="bi-dash-circle-fill"></i>
+                        </button>
+                      </td>
                     </tr>
                     <tr class="table-dark border border-dark">
-                      <td colspan="1">
-                        <i class="bi-dash-circle" style="font-size: 1.2rem;" ></i> 
-                        Total de Gastos: 
-                        </td>
-                      <td colspan="1">
-                        <i class="bi bi-plus-circle" style="font-size: 1.2rem;" ></i> 
-                        Total de Receitas: </td>
-                      <td colspan="2" style="text-align: center">
-                        <i class="fa fa-balance-scale" style="font-size: 1.2rem;"></i> 
-                        Balanço:
+                      <td colspan="6">
+                        <div class="d-flex justify-content-around" style="width: 100%">
+                          <div style="font-size:18px">
+                            <i class="bi-dash-circle" style="font-size:20px" ></i> 
+                            Total de Gastos: {{ form.totals.gastos }}
+                          </div>
+                          <div style="font-size:18px">
+                            <i class="bi bi-plus-circle" style="font-size:20px"></i> 
+                            Total de Receitas: {{ form.totals.receita }}
+                          </div>
+                          <div style="font-size:18px" >
+                            <i class="fa fa-balance-scale" style="font-size:20px"></i> 
+                            Balanço: {{ form.totals.balanco }}
+                          </div>
+                        </div>
                       </td>
-                      <td colspan="1" style="text-align: center">100%</td>
                     </tr>
                    </tbody>
                 </table>
@@ -422,19 +438,35 @@ import DefaultTitle from "../components/DefaultTitle.vue";
 import AlertMessage from "../components/AlertMessage.vue";
 import BU from '../services/bu.js'
 import Employee from '../services/employee.js'
+import CurrencyInput from '../components/Money.vue'
 
 export default {
   name: 'Orcamento',
   components: {
     DefaultButton,
     DefaultTitle,
-    AlertMessage
+    AlertMessage,
+    CurrencyInput 
   },
   methods: {
     collapseAccordion (id_collapse, id_field) {
-      console.log("action")
+      if (id_field == 'name') {
+        this.validationSelector(this.form.bu.name, "name")
+        this.validationSelector(this.form.bu.product_family, "product_family")
+        this.validationSelector(this.form.bu.approver, "approver")
+        if (this.validation.name && this.validation.product_family && this.validation.approver) {
+          this.collapseNow(id_collapse, id_field)
+        }
+      } else if (id_field == 'year') {
+        this.validationSelector(this.form.status.status, "status")
+        this.validationText(this.form.status.name, "status_name")
+        if (this.validation.status_name && this.validation.status) {
+          this.collapseNow(id_collapse, id_field)
+        }
+      }
+    },
+    collapseNow(id_collapse, id_field) {
       var collapse = document.getElementById(id_collapse)
-      
       window.setTimeout(function() {
         document.getElementById(id_field).focus();
       }, 1);
@@ -571,22 +603,103 @@ export default {
         this.control.events.alerts.table.errorText = ''
       }, 15000)
     },
+    toReal (value) {
+      return Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(value)
+    },
     addBudet () {
+      console.log(this.form.month)
       const data = {...this.form.month}
       this.form.months.push(data)
-
       this.form.month.month = 'Selecione'
       this.form.month.type = 'Selecione'
-      this.form.month.value = 'R$'
+      this.form.month.value = ''
       this.form.month.description = ''
+
+      this.form.totals.receita = 0
+      this.form.totals.gastos = 0
+      this.form.totals.balanco = 0
+      this.form.month.id += 1
+
+      this.form.months.forEach((val) => {
+        const value = val.value
+        if (val.type == 'Gastos'){
+          this.form.totals.gastos += parseFloat(value)
+        }else if (val.type == 'Receita'){
+          this.form.totals.receita += parseFloat(value)
+        }
+      })
+      
+      this.form.months.forEach((val) => {
+        const value = val.value
+        console.log(value)
+        if (val.type == 'Gastos'){
+          val.percent = ((value / this.form.totals.gastos) * 100).toFixed(2) + '%'
+        }else if (val.type == 'Receita'){
+          val.percent = ((value / this.form.totals.receita) * 100).toFixed(2) + '%'
+        }
+        console.log(val)
+      })
+      this.form.totals.balanco = "R$ " + ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
+      this.form.totals.gastos = "R$ " + this.form.totals.gastos.toFixed(2)
+      this.form.totals.receita = "R$ " + this.form.totals.receita.toFixed(2)
+    },
+    removeLine (id) {
+      const new_data = this.form.months.filter(val => val.id != id)
+      this.form.months = new_data
+      this.form.totals.receita = 0
+      this.form.totals.gastos = 0
+      this.form.totals.balanco = 0
+      this.form.month.id -= 1
+    },
+    validationSelector (value, key) {
+      if (value != 'Selecione') {
+        this.validation[key] = true
+        this.borders[key] = 'border border-success border-1 bg-success bg-opacity-10' 
+      } else {
+        this.validation[key] = false
+        this.borders[key] = 'border border-danger border-1 bg-danger bg-opacity-10'
+      }
+    },
+    validationText (value, key, len=null) {
+      if (value.length >= (len || 5)) {
+        this.validation[key] = true
+        this.borders[key] = 'border border-success border-1 bg-success bg-opacity-10' 
+      } else {
+        this.validation[key] = false
+        this.borders[key] = 'border border-danger border-1 bg-danger bg-opacity-10'
+      }
+    },
+    validValue(v, key) {
+      const letters = v.split("").filter(x => !Number.parseInt(x) && x != "," && x != ".")
+      if (letters.length == 0) {
+        this.validation[key] = true
+        this.borders[key] = 'border border-success border-1 bg-success bg-opacity-10' 
+      } else {
+        this.validation[key] = false
+        this.borders[key] = 'border border-danger border-1 bg-danger bg-opacity-10'
+      }
+      console.log(letters, this.validation[key])
+      return this.validation[key]
     }
   },
   watch: {
-    'form.month.value' (v) {
-      if (!v.includes("R$")) {
-        this.form.month.value = 'R$ ' + this.form.month.value
-      }
-      this.form.month.value = this.form.month.value.replace(',', '.')
+    'form.bu.name' (v) {
+      this.validationSelector(v, 'name')
+    },
+    'form.bu.product_family' (v) {
+      this.validationSelector(v, 'product_family')
+    },
+    'form.bu.approver' (v) {
+      this.validationSelector(v, 'approver')
+    },
+    'form.status.status' (v) {
+      this.validationSelector(v, 'status')
+    },
+    'form.status.name' (v) {
+      this.validationText(v, 'status_name')
     }
   },
   data () {
@@ -616,6 +729,11 @@ export default {
         {name: "Dezembro", value:  12},
       ],
       form: {
+        totals: {
+          receita: 0,
+          gastos: 0,
+          balanco: 0
+        },
         bu: {
           name: 'Selecione',
           product_family: 'Selecione',
@@ -629,17 +747,14 @@ export default {
           month: 'Selecione',
           year: 'Selecione',
           type: 'Selecione',
-          value: 'R$',
+          value: '',
           description: '',
           comment: '',
+          id: 0
         },
-        product_family: [
-        ],
-        bus: [
-        ],
-        bus_name: [
-
-        ],
+        product_family: [],
+        bus: [],
+        bus_name: [],
         months: [],
         approvers: [],
       },
@@ -675,6 +790,32 @@ export default {
           edit: true,
         }
       },
+      validation: {
+        name: false,
+        product_family: false,
+        approver: false,
+        status_name: false,
+        status: false,
+        year: false,
+        month: false,
+        type: false,
+        value: false,
+        description: false,
+        comment: false
+      },
+      borders: {
+        bu: '',
+        family: '',
+        approver: '',
+        name: '',
+        status: '',
+        year: '',
+        month: '',
+        type: '',
+        value: '',
+        description: '',
+        comment: ''
+      }
     }
   },
   async mounted (){
@@ -697,6 +838,14 @@ export default {
 </script>
 
 <style scoped>
+.input-group .form-control {
+    float: none;
+}
+.input-group .input-buttons {
+    position: relative;
+    z-index: 3;
+}
+
 .table-func, form, .container, #accordionParent {
   min-width: 100%;
 }
@@ -715,7 +864,9 @@ export default {
 	align-content: flex-end;
   margin-right: 0px !important;
 }
-
+.lines {
+  text-align: center;
+}
 table {
   border-collapse: collapse;
   border-radius: 7px;
