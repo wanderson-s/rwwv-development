@@ -1,9 +1,10 @@
 <template>
-    <div class="budget col-12" style="margin-right: 0px !important;">
+    <div class="budget col-12 required" style="margin-right: 0px !important;">
         <label for="value" class="form-label">Valor</label>
         <div class="input-group mb-3">
           <span class="input-group-text">R$</span>
           <input 
+            id="inputMoney"
             ref="inputRef"
             :disabled="disable"
             :value="formattedValue"

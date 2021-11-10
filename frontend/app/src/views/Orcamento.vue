@@ -5,6 +5,15 @@
       titleIcon="bi-briefcase-fill"
     />
     <form class="row g-0 p-3 px-4" @submit="onSubmit">
+      <AlertMessage 
+        :alertShow="alerts.form.success"  
+        alertText="Dados adicionado com sucesso." 
+        alertType="alert-success"/>
+      <AlertMessage  
+        :alertShow="alerts.form.error"
+        alertText="Ops. Verifique se todos os campos obrigatórios estão preenchidos corretamente." 
+        alertType="alert-danger"/>
+
      <div class="accordion shadow" id="accordionPanelsStayOpenExample">
         <!-- accordion 1 -->
         <div class="accordion-item shadow">
@@ -202,6 +211,7 @@
                     id="year"
                     v-model="form.month.year"
                     class="form-select"
+                    :class="borders.year"
                     aria-label="Selecione o Ano"
                     :disabled="disableForm"
                     required
@@ -222,6 +232,7 @@
                     id="month"
                     v-model="form.month.month"
                     class="form-select"
+                    :class="borders.month"
                     aria-label="Selecione o mês"
                     :disabled="disableForm"
                     required
@@ -241,6 +252,7 @@
                   <select
                     id="type"
                     v-model="form.month.type"
+                    :class="borders.type"
                     class="form-select"
                     aria-label="Selecione o Tipo"
                     :disabled="disableForm"
@@ -257,9 +269,9 @@
                 </div>
 
                 <currency-input 
-                  :options="{ currency: 'BRL',currencyDisplay: 'hidden',precision: 2, autoDecimalDigits: false }"
+                  :options="{ currency: 'BRL',currencyDisplay: 'hidden', precision: 2, autoDecimalDigits: false }"
                   :disable="disableForm"
-                  :border='borders.value'
+                  :border='borders.value' 
                   v-model="form.month.value"
                 />
               </div>
@@ -296,7 +308,8 @@
                 :buttonActive="disableForm" 
                 buttonColor="btn btn-secondary rounded-3 btn-sm" 
                 buttonIcon="bi bi-file-plus-fill" 
-                buttonType="button"/>
+                buttonType="button"
+              />
 
               <div class="d-flex flex-column bd-highlight" style="width: 100%">
                 <table class="table table-bordered shadow">
@@ -610,18 +623,60 @@ export default {
       }).format(value)
     },
     addBudet () {
-      console.log(this.form.month)
-      const data = {...this.form.month}
-      this.form.months.push(data)
-      this.form.month.month = 'Selecione'
-      this.form.month.type = 'Selecione'
-      this.form.month.value = ''
-      this.form.month.description = ''
+      if (this.validateThree() && this.validateOne() && this.validateTwo()){
+        console.log(this.form.month)
+        const data = {...this.form.month}
+        this.form.months.push(data)
+        this.form.month.month = 'Selecione'
+        this.form.month.type = 'Selecione'
+        this.form.month.value = ''
+        this.form.month.description = ''
 
+        this.form.totals.receita = 0
+        this.form.totals.gastos = 0
+        this.form.totals.balanco = 0
+        this.form.month.id += 1
+
+        this.form.months.forEach((val) => {
+          const value = val.value
+          if (val.type == 'Gastos'){
+            this.form.totals.gastos += parseFloat(value)
+          }else if (val.type == 'Receita'){
+            this.form.totals.receita += parseFloat(value)
+          }
+        })
+        
+        this.form.months.forEach((val) => {
+          const value = val.value
+          console.log(value)
+          if (val.type == 'Gastos'){
+            val.percent = ((value / this.form.totals.gastos) * 100).toFixed(2) + '%'
+          }else if (val.type == 'Receita'){
+            val.percent = ((value / this.form.totals.receita) * 100).toFixed(2) + '%'
+          }
+          console.log(val)
+        })
+        this.form.totals.balanco = "R$ " + ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
+        this.form.totals.gastos = "R$ " + this.form.totals.gastos.toFixed(2)
+        this.form.totals.receita = "R$ " + this.form.totals.receita.toFixed(2)
+        this.validation.month = false
+        this.validation.type = false
+        this.validation.value = false
+        this.alerts.form.success = true
+      } else {
+        this.alerts.form.error = true
+      }
+      setTimeout(() => {
+        this.alerts.form.success = false
+        this.alerts.form.error = false
+      }, 10000)
+    },
+    removeLine (id) {
+      const new_data = this.form.months.filter(val => val.id != id)
+      this.form.months = new_data
       this.form.totals.receita = 0
       this.form.totals.gastos = 0
       this.form.totals.balanco = 0
-      this.form.month.id += 1
 
       this.form.months.forEach((val) => {
         const value = val.value
@@ -631,7 +686,7 @@ export default {
           this.form.totals.receita += parseFloat(value)
         }
       })
-      
+
       this.form.months.forEach((val) => {
         const value = val.value
         console.log(value)
@@ -645,14 +700,6 @@ export default {
       this.form.totals.balanco = "R$ " + ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
       this.form.totals.gastos = "R$ " + this.form.totals.gastos.toFixed(2)
       this.form.totals.receita = "R$ " + this.form.totals.receita.toFixed(2)
-    },
-    removeLine (id) {
-      const new_data = this.form.months.filter(val => val.id != id)
-      this.form.months = new_data
-      this.form.totals.receita = 0
-      this.form.totals.gastos = 0
-      this.form.totals.balanco = 0
-      this.form.month.id -= 1
     },
     validationSelector (value, key) {
       if (value != 'Selecione') {
@@ -672,18 +719,43 @@ export default {
         this.borders[key] = 'border border-danger border-1 bg-danger bg-opacity-10'
       }
     },
-    validValue(v, key) {
-      const letters = v.split("").filter(x => !Number.parseInt(x) && x != "," && x != ".")
-      if (letters.length == 0) {
+    validationNumber (value, key) {
+      console.log(value)
+      if (typeof value === 'number') {
         this.validation[key] = true
-        this.borders[key] = 'border border-success border-1 bg-success bg-opacity-10' 
+        this.borders[key] = 'border border-success border-1 bg-success bg-opacity-10'
       } else {
         this.validation[key] = false
         this.borders[key] = 'border border-danger border-1 bg-danger bg-opacity-10'
       }
-      console.log(letters, this.validation[key])
-      return this.validation[key]
-    }
+    },
+    validateOne () {
+      this.validationSelector(this.form.bu.name, "name")
+      this.validationSelector(this.form.bu.product_family, "product_family")
+      this.validationSelector(this.form.bu.approver, "approver")
+      if (this.validation.name && this.validation.product_family && this.validation.approver) {
+        return true
+      }
+      return false
+    },
+    validateTwo () {
+      this.validationText(this.form.status.name, 'status_name')
+      this.validationSelector(this.form.status.status, "status")
+      if (this.validation.status_name && this.validation.status) {
+        return true
+      }
+      return false
+    },
+    validateThree () {
+      this.validationSelector(this.form.month.year ,"year")
+      this.validationSelector(this.form.month.month ,"month")
+      this.validationSelector(this.form.month.type ,"type")
+      this.validationNumber(this.form.month.value ,"value")
+      if (this.validation.year && this.validation.month && this.validation.type && this.validation.value) {
+        return true
+      }
+      return false
+    },
   },
   watch: {
     'form.bu.name' (v) {
@@ -700,6 +772,24 @@ export default {
     },
     'form.status.name' (v) {
       this.validationText(v, 'status_name')
+    },
+    'form.month.year' (v) {
+      this.validationSelector(v, 'year')
+    },
+    'form.month.month' (v) {
+      this.validationSelector(v, 'month')
+    },
+    'form.month.type' (v) {
+      this.validationSelector(v, 'type')
+    },
+    'form.month.value' (v) {
+      if (this.form.month.value) {
+        this.validation.value = true
+        this.borders.value = 'border border-success border-1 bg-success bg-opacity-10' 
+      } else {
+        this.validation.value = false
+        this.borders.value = 'border border-light border-1 bg-light bg-opacity-10'
+      }
     }
   },
   data () {
@@ -744,8 +834,8 @@ export default {
           status: 'Rascunho'
         },
         month: {
-          month: 'Selecione',
           year: 'Selecione',
+          month: 'Selecione',
           type: 'Selecione',
           value: '',
           description: '',
@@ -805,7 +895,7 @@ export default {
       },
       borders: {
         bu: '',
-        family: '',
+        product_family: '',
         approver: '',
         name: '',
         status: '',
@@ -815,6 +905,12 @@ export default {
         value: '',
         description: '',
         comment: ''
+      },
+      alerts: {
+        form: {
+          success: false,
+          error: false
+        }
       }
     }
   },
