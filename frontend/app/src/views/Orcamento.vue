@@ -410,25 +410,12 @@
     </form>
 
     <div id="budget-table" class="table-func d-flex row g-0 px-4 border border-danger rounded p-3 mt-1 px-4">
-
-      <AlertMessage 
-        alertShow="control.events.alerts.table.successShow"  
-        alertText="control.events.alerts.table.successText" 
-        alertType="alert-success"/>
-      <AlertMessage  
-        alertShow="control.events.alerts.table.errorShow"
-        alertText="control.events.alerts.table.errorText" 
-        alertType="alert-danger"/>
-
       <h5 class="card-title">Listagem de Orçamento</h5>
       <table class="table table-bordered shadow">
         <thead class="table table-dark border border-white">
           <tr class="border border-secondary">
             <th scope="col">Nome</th>
-            <th scope="col">Familia de Produto</th>
-            <th scope="col">Descrição</th>
-            <th scope="col">Criado</th>
-            <th scope="col">Atualizado</th>
+            <th scope="col">Status</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
@@ -462,18 +449,18 @@ export default {
     CurrencyInput 
   },
   methods: {
-    collapseAccordion (id_collapse, id_field) {
+    collapseAccordion (id_collapse, id_field, coll=true) {
       if (id_field == 'name') {
         this.validationSelector(this.form.bu.name, "name")
         this.validationSelector(this.form.bu.product_family, "product_family")
         this.validationSelector(this.form.bu.approver, "approver")
-        if (this.validation.name && this.validation.product_family && this.validation.approver) {
+        if (this.validation.name && this.validation.product_family && this.validation.approver && coll) {
           this.collapseNow(id_collapse, id_field)
         }
       } else if (id_field == 'year') {
         this.validationSelector(this.form.status.status, "status")
         this.validationText(this.form.status.name, "status_name")
-        if (this.validation.status_name && this.validation.status) {
+        if (this.validation.status_name && this.validation.status && coll) {
           this.collapseNow(id_collapse, id_field)
         }
       }
@@ -536,6 +523,37 @@ export default {
       this.control.buttons.save = true
       this.control.buttons.edit = true
       this.disableForm = true
+      this.control.accordion.bu = false
+      this.control.accordion.status = false
+      this.control.accordion.budget = false
+      this.control.accordion.collapseOneArea = false
+      this.control.accordion.collapseTwoArea = true
+      this.control.accordion.collapseThreeArea = true
+      this.control.disableForm = true
+      this.validation.name = false
+      this.validation.product_family = false
+      this.validation.approver = false
+      this.validation.status_name = false
+      this.validation.status = false
+      this.validation.year = false
+      this.validation.month = false
+      this.validation.type = false
+      this.validation.value = false
+      this.validation.description = false
+      this.validation.comment = false   
+
+      this.borders.bu = ''
+      this.borders.product_family = ''
+      this.borders.approver = ''
+      this.borders.name = ''
+      this.borders.status_name = ''
+      this.borders.status = ''
+      this.borders.year = ''
+      this.borders.month = ''
+      this.borders.type = ''
+      this.borders.value = ''
+      this.borders.description = ''
+      this.borders.comment = ''
     },
     onNew (event) {
       this.bu = {
@@ -622,6 +640,13 @@ export default {
         currency: 'BRL',
       }).format(value)
     },
+    validationOneAndTwo() {
+      this.validationSelector(this.form.bu.name, "name")
+      this.validationSelector(this.form.bu.product_family, "product_family")
+      this.validationSelector(this.form.bu.approver, "approver")
+      this.validationSelector(this.form.status.status, "status")
+      this.validationText(this.form.status.name, "status_name")
+    },
     addBudet () {
       if (this.validateThree() && this.validateOne() && this.validateTwo()){
         console.log(this.form.month)
@@ -664,6 +689,7 @@ export default {
         this.validation.value = false
         this.alerts.form.success = true
       } else {
+        this.validationOneAndTwo()
         this.alerts.form.error = true
       }
       setTimeout(() => {
@@ -898,6 +924,7 @@ export default {
         product_family: '',
         approver: '',
         name: '',
+        status_name: '',
         status: '',
         year: '',
         month: '',
