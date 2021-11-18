@@ -1,6 +1,6 @@
 <template>
   <div class="div-main">
-    <Navbar />
+    <Navbar :user="user" :logged="logged"/>
     <router-view class="div-body shadow" />
   </div>
 </template>
@@ -22,7 +22,21 @@ export default {
   },
   data() {
     return {
-      user: null,
+      user: {
+				"user": {
+					"first_name": "Usuário",
+					"last_name": "",
+					"active": false
+				},
+				"role": {
+					"is_admin": false,
+					"can_simulate_budget": false,
+					"can_submit_budget": false,
+					"can_approve_budget": false,
+					"can_read_budget": false
+				}
+			},
+      logged: false
     };
   },
   async mounted() {
@@ -31,6 +45,11 @@ export default {
       if (!data) {
         console.log("USER DOES NOT EXISTS.");
         this.redirectToLogin();
+
+      } else {
+        this.user = data
+        this.logged = true
+        this.i += 1
       }
     } catch (error) {
       console.log("REQUEST ERROR");

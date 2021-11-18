@@ -3,7 +3,7 @@
 		<div class="navegation">
 			<a 
 				class="navbar-brand" 
-				@click="$router.push('/')" 
+				@click="$router.push('/')"
 				href="/"
 				data-bs-toggle="tooltip" 
 				data-bs-placement="bottom" 
@@ -12,9 +12,10 @@
 				<i class="bi bi-house-fill"></i>
 				Inicio
 			</a>
+
 			<a 
 				class="navbar-brand" 
-				@click="$router.push('/funcionario')" 
+				@click="$router.push('/funcionario')"
 				href="/funcionario"
 				data-bs-toggle="tooltip" 
 				data-bs-placement="bottom" 
@@ -23,9 +24,10 @@
 				<i class="bi bi-people-fill"></i>
 				Funcionários
 			</a>
+
 			<a 
 				class="navbar-brand" 
-				@click="$router.push('/bu')" 
+				@click="$router.push('/bu')"
 				href="/bu"
 				data-bs-toggle="tooltip" 
 				data-bs-placement="bottom" 
@@ -34,9 +36,10 @@
 				<i class="bi bi-briefcase-fill"></i>
 				BUs
 			</a>
+
 			<a 
 				class="navbar-brand" 
-				@click="$router.push('/orcamento')" 
+				@click="$router.push('/orcamento')"
 				href="/orcamento"
 				data-bs-toggle="tooltip" 
 				data-bs-placement="bottom" 
@@ -45,25 +48,67 @@
 				<i class="bi bi-cash-stack"></i>
 				Orçamentos
 			</a>
+
 		</div>
 		<div class="user">
-			<a class="navbar-brand" @click="$router.push('/orcamento')" href="/orcamento">
+			<a 
+				class="navbar-brand"
+				 
+				@click="$router.push('#')" 
+				href="#"
+			>
 				<i class="bi bi-person-circle"></i>
-				Usuário
+				{{ user.user ? user.user.first_name : 'Usuário' }}
 			</a>
 		</div>
 	</nav>
 </template>
 
 <script>
-
 export default {
     name: 'Navbar',
-    data () {
-        return {
-
-        }
-    },
+	methods: {
+		default: function () {
+			this.user = {
+				"user": {
+					"first_name": "Usuário",
+					"last_name": "",
+					"active": true
+				},
+				"role": {
+					"is_admin": false,
+					"can_simulate_budget": false,
+					"can_submit_budget": false,
+					"can_approve_budget": false,
+					"can_read_budget": false
+				}
+			}
+			this.logged = false
+		}
+	},
+	props: {
+		user: {
+			type: Object,
+			default: {
+				"user": {
+					"first_name": "Usuário",
+					"last_name": "",
+					"active": false
+				},
+				"role": {
+					"is_admin": false,
+					"can_simulate_budget": false,
+					"can_submit_budget": false,
+					"can_approve_budget": false,
+					"can_read_budget": false
+				}
+			}
+		},
+		logged: {
+			type: Boolean,
+			default: false
+		}
+	}
 }
 </script>
 
@@ -88,5 +133,9 @@ export default {
  background-color: #d04f5c; 
  border: white solid 1px;
 } 
- 
+
+.disabled-link {
+  pointer-events: none;
+}
+
 </style>

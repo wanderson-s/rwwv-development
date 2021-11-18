@@ -7,11 +7,11 @@
     <form class="row g-0 p-3 px-4" @submit="onSubmit">
       <AlertMessage 
         :alertShow="alerts.form.success"  
-        alertText="Dados adicionado com sucesso." 
+        :alertText="alerts.form.successText" 
         alertType="alert-success"/>
       <AlertMessage  
         :alertShow="alerts.form.error"
-        alertText="Ops. Verifique se todos os campos obrigatórios estão preenchidos corretamente." 
+        :alertText="alerts.form.errorText" 
         alertType="alert-danger"/>
 
      <div class="accordion shadow" id="accordionPanelsStayOpenExample">
@@ -27,16 +27,106 @@
               aria-controls="panelsStayOpen-collapseOne"
               :disabled="control.accordion.bu"
             >
+              <i class="bi-plus-square-fill pe-2" style="font-size: 20px;"></i>
+              Informe o nome e status do seu orçamento.
+            </button>
+          </h2>
+          <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse" :class="accordion.collOne" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accor-01 accordion-body" style="width: 100%">
+              <div class="name status col-12" :class="field_required ? 'required' : ''">
+                <label for="name" class="form-label">Nome</label>
+                <input
+                  :disabled="disableFormBudget"
+                  id="name"
+                  v-model="form.status.name"
+                  :class="borders.status_name"
+                  type="text"
+                  class="form-control"
+                  placeholder="Orçamento referente ao ano de 2022"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="O nome do status precisa ter pelo menos 5 letras."
+                />
+              </div>
+
+              <div class="selected col-12 required" :class="field_required ? 'required' : ''">
+                <label for="status" class="form-label">Status</label>
+                <select
+                  id="status"
+                  v-model="form.status.status"
+                  :class="borders.status"
+                  class="form-select"
+                  aria-label="Selecione o status"
+                  :disabled="disableFormBudget"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="Por padrão o status inicia como rascunho."
+                  required
+                >
+                  <option> {{ form.status.status }} </option>
+                </select>
+              </div>
+
+              <div class="selected col-12 required">
+                <label for="approver" class="form-label">Aprovador</label>
+                <select
+                  id="approver"
+                  v-model="form.bu.approver"
+                  :class="borders.approver"
+                  class="form-select"
+                  aria-label="Selecione o Aprovador"
+                  @change="accordionOne"
+                  :disabled="disableFormBudget"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="bottom" 
+                  title="Selecione o e-mail do aprovador"
+                  required
+                >
+                  <option :selected="form.bu.approver"> {{ form.bu.approver }} </option>
+                  <option 
+                    v-for="b in form.approvers.filter((b) => b.email !== form.bu.approver )" 
+                    :key="b.id" 
+                    :value="b.email">
+                    {{ b.email }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="btn-next col-12">
+                <DefaultButton 
+                  @click="collapseAccordion('panelsStayOpen-collapseTwo', 'business')"
+                  :disabled="disableFormBudget"
+                  class="me-0 rounded-3 btn-sm" 
+                  buttonText="Próximo"  
+                  buttonColor="btn btn-outline-primary" 
+                  buttonIcon="bi-arrow-right-circle-fill" 
+                  buttonType="button"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- accordion 2 -->
+        <div class="accordion-item shadow">
+          <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+            <button 
+              class="accordion-button" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#panelsStayOpen-collapseTwo" 
+              aria-expanded="true" 
+              aria-controls="panelsStayOpen-collapseTwo"
+              :disabled="control.accordion.bu"
+            >
               <i class="bi-briefcase-fill pe-2" style="font-size: 20px;" ></i>
               Selecione a BU, Familia de Produto e Aprovador.
             </button>
           </h2>
-          <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+          <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" :class="accordion.collTwo" aria-labelledby="panelsStayOpen-headingTwo">
             <div class="accor-01 accordion-body" style="width: 100%">
               <div class="selected col-12 required">
-                <label for="bu" class="form-label">BU</label>
+                <label for="business" class="form-label">BU</label>
                 <select
-                  id="bu"
+                  id="business"
                   v-model="form.bu.name"
                   class="form-select"
                   :class="borders.name"
@@ -83,100 +173,10 @@
                 </select>
               </div>
 
-              <div class="selected col-12 required">
-                <label for="approver" class="form-label">Aprovador</label>
-                <select
-                  id="approver"
-                  v-model="form.bu.approver"
-                  :class="borders.approver"
-                  class="form-select"
-                  aria-label="Selecione o Aprovador"
-                  @change="accordionOne"
-                  :disabled="disableForm"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="bottom" 
-                  title="Selecione o e-mail do aprovador"
-                  required
-                >
-                  <option :selected="form.bu.approver"> {{ form.bu.approver }} </option>
-                  <option 
-                    v-for="b in form.approvers.filter((b) => b.email !== form.bu.approver )" 
-                    :key="b.id" 
-                    :value="b.email">
-                    {{ b.email }}
-                  </option>
-                </select>
-              </div>
-
               <div class="btn-next col-12">
                 <DefaultButton
                   :disabled="disableForm"
-                  @click="collapseAccordion('panelsStayOpen-collapseTwo', 'name')"
-                  class="me-0 rounded-3 btn-sm" 
-                  buttonText="Próximo"  
-                  buttonColor="btn btn-outline-primary" 
-                  buttonIcon="bi-arrow-right-circle-fill" 
-                  buttonType="button"/>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- accordion 2 -->
-        <div class="accordion-item shadow">
-          <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-            <button 
-              class="accordion-button collapsed" 
-              type="button" 
-              data-bs-toggle="collapse" 
-              data-bs-target="#panelsStayOpen-collapseTwo" 
-              aria-expanded="true" 
-              aria-controls="panelsStayOpen-collapseTwo"
-              :disabled="control.accordion.bu"
-            >
-              <i class="bi-plus-square-fill pe-2" style="font-size: 20px;"></i>
-              Informe o nome e status do seu orçamento.
-            </button>
-          </h2>
-          <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
-            <div class="accor-01 accordion-body">
-              <div class="name status col-12" :class="field_required ? 'required' : ''">
-                <label for="name" class="form-label">Nome</label>
-                <input
-                  :disabled="disableForm"
-                  id="name"
-                  v-model="form.status.name"
-                  :class="borders.status_name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Orçamento referente ao ano de 2022"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="bottom" 
-                  title="O nome do status precisa ter pelo menos 5 letras."
-                />
-              </div>
-
-              <div class="selected col-12 required" :class="field_required ? 'required' : ''">
-                <label for="bu" class="form-label">Status</label>
-                <select
-                  id="bu"
-                  v-model="form.status.status"
-                  :class="borders.status"
-                  class="form-select"
-                  aria-label="Selecione o status"
-                  :disabled="disableForm"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="bottom" 
-                  title="Por padrão o status inicia como rascunho."
-                  required
-                >
-                  <option> {{ form.status.status }} </option>
-                </select>
-              </div>
-
-              <div class="btn-next col-12">
-                <DefaultButton 
                   @click="collapseAccordion('panelsStayOpen-collapseThree', 'year')"
-                  :disabled="disableForm"
                   class="me-0 rounded-3 btn-sm" 
                   buttonText="Próximo"  
                   buttonColor="btn btn-outline-primary" 
@@ -187,10 +187,10 @@
           </div>
         </div>
         <!-- accordion 3 -->
-        <div class="accordion-item">
+        <div class="accordion-item shadow">
           <h2 class="accordion-header" id="panelsStayOpen-headingThree">
             <button 
-              class="accordion-button collapsed" 
+              class="accordion-button" 
               type="button" 
               data-bs-toggle="collapse" 
               data-bs-target="#panelsStayOpen-collapseThree" 
@@ -202,7 +202,7 @@
               Adicionar Orçamento
             </button>
           </h2>
-          <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+          <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" :class="accordion.collThree" aria-labelledby="panelsStayOpen-headingThree">
             <div class="accor-01 accordion-body" style="width: 100%">
               <div class="d-flex justify-content-between" style="width: 100%">
                 <div class="budget col-12 required">
@@ -315,6 +315,8 @@
                 <table class="table table-bordered shadow">
                   <thead class="table table-dark border border-white">
                     <tr class="border border-secondary">
+                      <th scope="col">BU</th>
+                      <th scope="col">Familia</th>
                       <th scope="col">Ano</th>
                       <th scope="col">Mês</th>
                       <th scope="col">Tipo</th>
@@ -325,10 +327,12 @@
                   </thead>
                   <tbody>
                     <tr v-for="month in form.months" :key="month.value">
+                      <td class="lines">{{ getBuById(month.bu_id) }}</td>
+                      <td class="lines">{{ getFamilyById(month.bu_id) }}</td>
                       <td class="lines">{{ month.year }}</td>
                       <td class="lines">{{ month.month }}</td>
                       <td class="lines">{{ month.type }}</td>
-                      <td class="lines">R$ {{ month.value }}</td>
+                      <td class="lines">{{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(month.value) }}</td>
                       <td class="lines">{{ month.percent }}</td>
                       <td class="lines">
                         <button 
@@ -343,7 +347,7 @@
                       </td>
                     </tr>
                     <tr class="table-dark border border-dark">
-                      <td colspan="6">
+                      <td colspan="8">
                         <div class="d-flex justify-content-around" style="width: 100%">
                           <div style="font-size:18px">
                             <i class="bi-dash-circle" style="font-size:20px" ></i> 
@@ -439,6 +443,10 @@ import AlertMessage from "../components/AlertMessage.vue";
 import BU from '../services/bu.js'
 import Employee from '../services/employee.js'
 import CurrencyInput from '../components/Money.vue'
+import Budget from '../services/budget.js'
+import StatusBudget from '../services/status.js'
+import Approver from '../services/approver.js'
+import Month from '../services/month.js'
 
 export default {
   name: 'Orcamento',
@@ -450,19 +458,40 @@ export default {
   },
   methods: {
     collapseAccordion (id_collapse, id_field, coll=true) {
-      if (id_field == 'name') {
+      if (id_field == 'year') {
         this.validationSelector(this.form.bu.name, "name")
         this.validationSelector(this.form.bu.product_family, "product_family")
-        this.validationSelector(this.form.bu.approver, "approver")
-        if (this.validation.name && this.validation.product_family && this.validation.approver && coll) {
-          this.collapseNow(id_collapse, id_field)
-        }
-      } else if (id_field == 'year') {
+        setTimeout(() => {
+          if (this.validation.name && this.validation.product_family && coll) {
+            this.accordion.collTwo = ''
+            this.accordion.collThree = 'show'
+            window.setTimeout(function() {
+              document.getElementById(id_field).focus();
+            }, 1);
+            this.getBu()
+          }
+        }, 250)
+      } else if (id_field == 'business') {
         this.validationSelector(this.form.status.status, "status")
         this.validationText(this.form.status.name, "status_name")
-        if (this.validation.status_name && this.validation.status && coll) {
-          this.collapseNow(id_collapse, id_field)
-        }
+        this.validationSelector(this.form.bu.approver, "approver")
+      
+        this.saveBudget()
+        console.log(this.budgetStatus)
+        setTimeout(() => {
+          if (this.validation.status_name && this.validation.status && this.validation.approver && coll && this.budgetStatus) {
+            this.disableForm = false
+            this.disableFormBudget = true
+            this.accordion.collTwo = 'show'
+            this.accordion.collOne = ''
+            this.borders.approver = ''
+            this.borders.status_name = ''
+            this.borders.status = ''
+            window.setTimeout(function() {
+              document.getElementById(id_field).focus();
+            }, 1);
+          }
+        }, 250)
       }
     },
     collapseNow(id_collapse, id_field) {
@@ -471,6 +500,14 @@ export default {
         document.getElementById(id_field).focus();
       }, 1);
       return new bootstrap.Collapse(collapse, {show: true})
+    },
+    getBuById (id) {
+      const data = this.form.bus.filter((v) => v.id == id)
+      return data[0].name
+    },
+    getFamilyById (id) {
+      const data = this.form.bus.filter((v) => v.id == id)
+      return data[0].product_family
     },
     listBUs (id) {
       BU.listBu(id)
@@ -523,6 +560,7 @@ export default {
       this.control.buttons.save = true
       this.control.buttons.edit = true
       this.disableForm = true
+      this.disableFormBudget = true
       this.control.accordion.bu = false
       this.control.accordion.status = false
       this.control.accordion.budget = false
@@ -565,31 +603,89 @@ export default {
       this.control.buttons.new = true
       this.control.buttons.save = false
       this.control.buttons.edit = true
-      this.disableForm = false
+      this.disableFormBudget = false
+    },
+    // Save
+    getApprover() {
+      Employee.listEmployeeByEmail(this.form.bu.approver)
+      .then((resp) => {
+        this.dataBudget.bu.approver = resp.data
+      }).catch((err) => {
+        console.log("Approver", err)
+      })
+    },
+    getBu () {
+      const data = this.form.bus.filter((v) => v.name == this.form.bu.name && v.product_family == this.form.bu.product_family)
+      this.dataBudget.bu.bu = data[0]
+    },
+    saveBudget () {
+      this.getBu()
+      this.getApprover()
+      const data = {name: this.form.status.name, employee_id: this.user.id}
+      Budget.createBudget(data)
+      .then((resp) => {
+        this.dataBudget.budget.data = resp.data
+        this.saveStatus()
+        setTimeout(() => {
+          this.saveApprover()
+        }, 1000)
+        this.alerts.form.success = true
+        this.alerts.form.successText = "Orçamento criado com sucesso."
+        this.budgetStatus = true
+      }).catch((err) => {
+        console.log(err)
+        this.alerts.form.error = true
+        this.alerts.form.errorText = err.response.data.detail
+        this.budgetStatus = false
+      }).finally(this.disableAlertForm())
+    },
+    saveStatus() {
+      const status = this.status.filter((v) => v.value == this.form.status.status)[0].name
+      const data = {status: status, current: true, budget_id: this.dataBudget.budget.data.id}
+      StatusBudget.createStatusBudget(data)
+      .then((resp) => {
+        this.dataBudget.budget.status = resp.data
+      }).catch((err) => {
+        console.log(err.response.data)
+      })
+    },
+    saveApprover () {
+      this.getApprover()
+      const data = {
+        budget_id:  this.dataBudget.budget.data.id, 
+        approver_id: this.dataBudget.bu.approver.id
+      }
+      Approver.createApprover(data)
+      .then((resp) => {
+        console.log(resp.data)
+      }).catch((err) => {
+        console.log(err.response.data)
+      })
     },
     onSubmit(event) {
       event.preventDefault();
-      const data = {...this.bu}
-      data.employee_id = this.localEmployeeId
-      BU.createBu(data)
-        .then( (resp) => {
-          this.listBus(this.localEmployeeId)
-          
-          this.onReset()
-
-          this.control.events.alerts.form.successShow = true
-          this.control.events.alerts.form.successText = 'BU adicionada com sucesso.'
-          this.disableAlertForm()
-        }).catch( (err) => {
-          this.control.events.alerts.form.errorShow = true
-          if (err.response.status != 422){
-            this.control.events.alerts.form.errorText = err.response.data.detail
-          }else {
-            his.control.events.alerts.form.errorText = 'Erro ao inserir a nova BU. Por favor, cheque os campos e tente novamente.'
-          }
-          this.disableAlertForm()
-        })
+      if (this.form.months.length < 1) {
+        this.alerts.form.error = true
+        this.alerts.form.errorText = "O orçamento não pode ser salvo. Verifique se você preencheu todos os campos e adicionou pelo menos um orçamento!"
+      } else {
+        this.form.months.forEach((item) => {
+          const data = {...item}
+          data.month = this.months.filter(v => v.name == item.month)[0].value
+          data.type = item.type == 'Receita' ? 'income' : 'expenditure'
+          Month.createMonth(data)
+          .then(resp => {
+            console.log(resp.data)
+          }).catch(err => {
+            console.log(err.response.data)
+            console.log(err.request.data)
+          })
+        }),
+        this.alerts.form.success = true
+        this.alerts.form.successText = 'Orçamento gerado com sucesso.'
+      }
+      this.disableAlertForm()
     },
+    // =======
     onChange(event) {
       event.preventDefault();
       const data = {...this.bu}
@@ -620,10 +716,10 @@ export default {
     },
     disableAlertForm () {
       setTimeout( () => {
-        this.control.events.alerts.form.successShow = false
-        this.control.events.alerts.form.successText = ''
-        this.control.events.alerts.form.errorShow = false
-        this.control.events.alerts.form.errorText = ''
+        this.alerts.form.success = false
+        this.alerts.form.successText = ''
+        this.alerts.form.error = false
+        this.alerts.form.errorText = ''
       }, 15000)
     },
     disableAlertTable () {
@@ -648,54 +744,62 @@ export default {
       this.validationText(this.form.status.name, "status_name")
     },
     addBudet () {
-      if (this.validateThree() && this.validateOne() && this.validateTwo()){
-        console.log(this.form.month)
-        const data = {...this.form.month}
-        this.form.months.push(data)
-        this.form.month.month = 'Selecione'
-        this.form.month.type = 'Selecione'
-        this.form.month.value = ''
-        this.form.month.description = ''
-
-        this.form.totals.receita = 0
-        this.form.totals.gastos = 0
-        this.form.totals.balanco = 0
-        this.form.month.id += 1
-
-        this.form.months.forEach((val) => {
-          const value = val.value
-          if (val.type == 'Gastos'){
-            this.form.totals.gastos += parseFloat(value)
-          }else if (val.type == 'Receita'){
-            this.form.totals.receita += parseFloat(value)
-          }
-        })
-        
-        this.form.months.forEach((val) => {
-          const value = val.value
-          console.log(value)
-          if (val.type == 'Gastos'){
-            val.percent = ((value / this.form.totals.gastos) * 100).toFixed(2) + '%'
-          }else if (val.type == 'Receita'){
-            val.percent = ((value / this.form.totals.receita) * 100).toFixed(2) + '%'
-          }
-          console.log(val)
-        })
-        this.form.totals.balanco = "R$ " + ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
-        this.form.totals.gastos = "R$ " + this.form.totals.gastos.toFixed(2)
-        this.form.totals.receita = "R$ " + this.form.totals.receita.toFixed(2)
-        this.validation.month = false
-        this.validation.type = false
-        this.validation.value = false
-        this.alerts.form.success = true
-      } else {
-        this.validationOneAndTwo()
-        this.alerts.form.error = true
-      }
+      this.getBu()
       setTimeout(() => {
-        this.alerts.form.success = false
-        this.alerts.form.error = false
-      }, 10000)
+        if (this.validateThree() && this.validateTwo()){
+          const data = {
+            ...this.form.month, 
+            bu_id: this.dataBudget.bu.bu.id, 
+            budget_id: this.dataBudget.budget.data.id,
+          }
+          this.form.months.push(data)
+          this.form.month.month = 'Selecione'
+          this.form.month.type = 'Selecione'
+          this.form.month.value = ''
+          this.form.month.description = ''
+
+          this.form.totals.receita = 0
+          this.form.totals.gastos = 0
+          this.form.totals.balanco = 0
+          this.form.month.id += 1
+
+          this.form.months.forEach((val) => {
+            const value = val.value
+            if (val.type == 'Gastos'){
+              this.form.totals.gastos += parseFloat(value)
+            }else if (val.type == 'Receita'){
+              this.form.totals.receita += parseFloat(value)
+            }
+          })
+          
+          this.form.months.forEach((val) => {
+            const value = val.value
+            if (val.type == 'Gastos'){
+              val.percent = ((value / this.form.totals.gastos) * 100).toFixed(2) + '%'
+            }else if (val.type == 'Receita'){
+              val.percent = ((value / this.form.totals.receita) * 100).toFixed(2) + '%'
+            }
+            console.log(val)
+          })
+          //this.form.totals.balanco = "R$ " + ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
+          //this.form.totals.gastos = "R$ " + this.form.totals.gastos.toFixed(2)
+          //this.form.totals.receita = "R$ " + this.form.totals.receita.toFixed(2)
+          this.form.totals.balanco = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
+          this.form.totals.gastos = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.form.totals.gastos.toFixed(2))
+          this.form.totals.receita = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.form.totals.receita.toFixed(2))
+          this.validation.month = false
+          this.validation.type = false
+          this.validation.value = false
+          this.alerts.form.success = true
+        } else {
+          this.validationOneAndTwo()
+          this.alerts.form.error = true
+        }
+        setTimeout(() => {
+          this.alerts.form.success = false
+          this.alerts.form.error = false
+        }, 10000)
+      }, 250)
     },
     removeLine (id) {
       const new_data = this.form.months.filter(val => val.id != id)
@@ -746,7 +850,6 @@ export default {
       }
     },
     validationNumber (value, key) {
-      console.log(value)
       if (typeof value === 'number') {
         this.validation[key] = true
         this.borders[key] = 'border border-success border-1 bg-success bg-opacity-10'
@@ -755,19 +858,19 @@ export default {
         this.borders[key] = 'border border-danger border-1 bg-danger bg-opacity-10'
       }
     },
-    validateOne () {
+    validateTwo () {
       this.validationSelector(this.form.bu.name, "name")
       this.validationSelector(this.form.bu.product_family, "product_family")
-      this.validationSelector(this.form.bu.approver, "approver")
-      if (this.validation.name && this.validation.product_family && this.validation.approver) {
+      if (this.validation.name && this.validation.product_family) {
         return true
       }
       return false
     },
-    validateTwo () {
+    validateOne () {
       this.validationText(this.form.status.name, 'status_name')
       this.validationSelector(this.form.status.status, "status")
-      if (this.validation.status_name && this.validation.status) {
+      this.validationSelector(this.form.bu.approver, "approver")
+      if (this.validation.status_name && this.validation.status && this.validation.approver) {
         return true
       }
       return false
@@ -821,8 +924,15 @@ export default {
   data () {
     return {
       user: null,
+      disableFormBudget: true,
       disableForm: true,
       field_required: true,
+      accordion: {
+        collOne: 'show',
+        collTwo: '',
+        collThree: ''
+      },
+      budgetStatus: false,
       status: [
         {name: "draft", value:  "Rascunho"},
         {name: "approve", value:  "Aguardando aprovação"},
@@ -936,8 +1046,21 @@ export default {
       alerts: {
         form: {
           success: false,
-          error: false
+          successText: '',
+          error: false,
+          errorText: '',
         }
+      },
+      dataBudget: {
+        bu: {
+          bu: {},
+          approver: {}
+        },
+        budget: {
+          data: {},
+          status: {}
+        },
+        months: {}
       }
     }
   },
@@ -951,6 +1074,7 @@ export default {
       }else {
         this.listBUs(data.user.id)
         this.listApprovers()
+        this.user = data.user
       }
     } catch (error) {
       console.log("REQUEST ERROR")
@@ -1004,7 +1128,7 @@ form {
   border-bottom-right-radius: 4px;
 }
 .name {
-  width: 45%;
+  width: 35%;
 }
 .budget {
   max-width: 23%;

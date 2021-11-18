@@ -1,18 +1,16 @@
 import { http } from "./config";
 
 export default {
-	listBu: (id) => {
-		return http.get('/bu?employee_id=' + id)
+	createBudget: (data) => { 
+		return http.post('/budget', data)
 	},
-	removeBu: (id) => {
-		return http.delete('/bu/' + id)
+	listBudget: (id) => {
+		return http.get('/budget?employee_id=' + id)
 	},
-	createBu: (data) => { 
-		return http.post('/bu', data, {
-			headers: {}
-		})
+	removeBudget: (id) => {
+		return http.delete('/budget/' + id)
 	},
-	changeBu: (id, data) => {
-		return http.patch('/bu/' + id, data)
+	changeBudget: (id, data) => {
+		return http.patch('/budget/' + id, data)
 	}
 }

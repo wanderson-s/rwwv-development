@@ -35,7 +35,7 @@ def init_app(app: FastAPI):
         return employee.select_employee_by_id(id=id, db=db)
 
     @router.get(
-        "/employees", response_model=Union[List[BaseModelEmployee], BaseEmployee]
+        "/employees", response_model=Union[List[BaseModelEmployee], BaseModelEmployee]
     )
     async def get_employees(
         email: str = Query(None, regex="^[a-z0-9.]+@taimin\.com\.br"),

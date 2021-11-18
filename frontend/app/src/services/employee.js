@@ -4,6 +4,9 @@ export default {
 	listEmployee: () => {
 		return http.get('/employees')
 	},
+	listEmployeeByEmail: (email) => {
+		return http.get('/employees?email=' + email)
+	},
 	listEmployeeApprover: () => {
 		return http.get('/employees?approver=true')
 	},
