@@ -5,7 +5,8 @@ from app.model.enum import EnumBudgetStatus
 
 class BaseStatusBudget(BaseModel):
     status: EnumBudgetStatus
-    current: bool = False
+    current: bool = True
+    message: str = None
     fk_id_budget: int = Field(..., alias="budget_id")
 
 

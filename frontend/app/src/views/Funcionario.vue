@@ -1,10 +1,11 @@
 <template>
-  <div id="local-main" class="container-fluid p-1 pe-2">
+
+  <div v-if="permission.is_admin" id="local-main" class="container-fluid p-1 pe-2">
     <DefaultTitle 
       titleText="Funcionários" 
       titleIcon="bi-people-fill"
     />
-
+    
     <form class="row g-0 p-3 px-4" @submit="onSubmit">
       <AlertMessage :alertShow="disableAlert" v-for="al in alertList" :key="al" :alertText="al" alertType="alert-danger"/>
       <AlertMessage :alertShow="successAlert" :alertText="successMessage" alertType="alert-success"/>
@@ -228,6 +229,7 @@
     </div>
 
   </div>
+  <DefaultTemplate v-else/>
 </template>
 
 <script>
@@ -236,7 +238,9 @@ import redirectToLogin from "../js/redirectLogin";
 import DefaultButton from "../components/DefaultButton.vue";
 import DefaultTitle from "../components/DefaultTitle.vue";
 import AlertMessage from "../components/AlertMessage.vue";
+import DefaultTemplate from "../components/NotAccessable.vue";
 import Employee from '../services/employee.js'
+import { onBeforeMount } from '@vue/runtime-core';
 
 const positionData = {
   list: [
@@ -269,7 +273,8 @@ export default {
   components: {
     DefaultButton,
     DefaultTitle,
-    AlertMessage
+    AlertMessage,
+    DefaultTemplate
   },
   methods: {
     isActive: function (value) {
@@ -462,6 +467,9 @@ export default {
         can_read_budget: false,
         is_admin: false,
       },
+      permission: {
+        is_admin: false
+      },
       employees: [],
       position: positionData.list,
       position_pt: positionData.en,
@@ -479,7 +487,7 @@ export default {
       removeMessageError: ''
     };
   },
-  async mounted() {
+  async beforeMount() {
     try {
       const data = await checkLogin();
       if (!data) {
@@ -487,7 +495,10 @@ export default {
         redirectToLogin(this);
       }
       else {
-        this.listEmployee()
+        if (data.role.is_admin) {
+          this.listEmployee()
+          this.permission.is_admin = data.role.is_admin
+        }
       }
     } catch (error) {
       console.log("REQUEST ERROR");

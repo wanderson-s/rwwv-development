@@ -7,6 +7,8 @@ from app.schema.input.common.budget import BaseModelBudget
 
 class BaseModelStatusBudgetDefault(BaseStatusBudget):
     id: int
+    current: bool = True
+    message: str = None
     created_at: datetime
     updated_at: datetime
 

@@ -25,11 +25,11 @@ export default {
 <style scoped>
 .container {
 	width: 100%;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
-  background-color: black;
-  color: white;
-  border: black solid 1px;
+	border-top-left-radius: 7px;
+	border-top-right-radius: 7px;
+	background-color: black;
+	color: white;
+	border: black solid 1px;
 }
 
 </style>

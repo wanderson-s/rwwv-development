@@ -2,6 +2,8 @@ import sqlalchemy
 from fastapi import FastAPI
 from datetime import datetime
 
+from sqlalchemy.sql.expression import true
+
 from app.config.settings import settings
 from app.model.database import Base
 from app.model.enum import (
@@ -214,7 +216,7 @@ class StatusBudget(Base):
     status = sqlalchemy.Column(
         sqlalchemy.Enum(EnumBudgetStatus), default=EnumBudgetStatus.draft, nullable=False
     )
-    current = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=False)
+    current = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=True)
     message = sqlalchemy.Column(sqlalchemy.Text, nullable=True)
     # datetime
     created_at = sqlalchemy.Column(

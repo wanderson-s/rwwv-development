@@ -285,7 +285,7 @@
                     v-model="form.month.description"
                     type="text"
                     class="form-control"
-                    placeholder="Gastos com alocação."
+                    placeholder="Descrição do orçamento."
                   />
                 </div>
 
@@ -359,7 +359,8 @@
                           </div>
                           <div style="font-size:18px" >
                             <i class="fa fa-balance-scale" style="font-size:20px"></i> 
-                            Balanço: {{ form.totals.balanco }}
+                            Resultado Liquido: {{ form.totals.balanco }} 
+                            <!-- Porcentagem: {{ form.totals.percent }} % -->
                           </div>
                         </div>
                       </td>
@@ -415,17 +416,72 @@
 
     <div id="budget-table" class="table-func d-flex row g-0 px-4 border border-danger rounded p-3 mt-1 px-4">
       <h5 class="card-title">Listagem de Orçamento</h5>
+      <div class="status_tag d-flex justify-content-around">
+        <p class="text-start"><i class="bi bi-circle-fill me-3" style="color: gray;"></i>Rascunho.</p>
+        <p class="text-start"><i class="bi bi-circle-fill me-3" style="color: blue;"></i>Aguardando aprovação.</p>
+        <p class="text-start"><i class="bi bi-circle-fill me-3" style="color: brown;"></i>Reprovado.</p>
+        <p class="text-start"><i class="bi bi-circle-fill me-3" style="color: orange;"></i>Refazer.</p>
+        <p class="text-start"><i class="bi bi-circle-fill me-3" style="color: green;"></i>Aprovado.</p>
+      </div>
       <table class="table table-bordered shadow">
         <thead class="table table-dark border border-white">
           <tr class="border border-secondary">
             <th scope="col">Nome</th>
             <th scope="col">Status</th>
+            <th scope="col">Mensagem</th>
+            <th scope="col">Última Atualização</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            
+          <tr v-for="bud in budgetList" :key="bud.id">
+            <td class="lines">{{ bud.name }}</td>
+            <td class="lines">
+              <i class="bi bi-circle-fill" :style="getStatusIcon(bud.status)"></i>
+            </td>
+            <td class="lines">{{ bud.status[bud.status.length-1].message || '' }}</td>
+            <td class="lines">{{ bud.status[bud.status.length-1].updated_at || '' }}</td>
+            <td class="d-flex flex-row justify-content-around">
+              <button :disabled="getStatusByList(bud.status) == 'draft' ? false : true"
+                @click="changeStatus(bud.id)" 
+                type="button"
+                class="btn btn-warning btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Enviar para aprovação"
+                ><i class="fa fa-paper-plane"></i>
+              </button>
+
+              <button :disabled="getStatusByList(bud.status) == 'approve' && role.can_approve_budget ? false : true"
+                @click="changeStatus(bud.id, 'approved', 'Orçamento aprovado.')" 
+                type="button"
+                class="btn btn-success btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Aprovar Orçamento"
+                ><i class="bi bi-check-circle-fill"></i>
+              </button>
+
+              <button :disabled="getStatusByList(bud.status) == 'approve' && role.can_approve_budget ? false : true"
+                @click="changeStatus(bud.id, 'denied', 'Negado.')" 
+                type="button"
+                class="btn btn-danger btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Reprovar Orçamento"
+                ><i class="bi bi-x-circle-fill"></i>
+              </button>
+
+              <button :disabled="getStatusByList(bud.status) == 'draft' || getStatusByList(bud.status) == 'remake' ? false : true" 
+                type="button"
+                class="btn btn-primary btn-sm m-0"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                title="Editar Orçamento"
+                ><i class="bi bi-pencil-square"></i>
+              </button>
+
+            </td>
           </tr>
         </tbody>
       </table>
@@ -509,6 +565,36 @@ export default {
       const data = this.form.bus.filter((v) => v.id == id)
       return data[0].product_family
     },
+    getStatusByList(status) {
+      const st = status[status.length-1]
+      if (!st) {
+        return ''
+      }
+      return st.status
+    },
+    getStatusIcon(status) {
+      const icons = {
+        draft: 'color: gray;',
+        approve: 'color: blue;',
+        denied: 'color: brown;',
+        remake: 'color: orange;',
+        approved: 'color: green;',
+      }
+      const st = status[status.length-1]
+      if (!st) {
+        return ''
+      }
+      return icons[st.status]
+    },
+    listBudgets () {
+      Budget.listBudget(this.user.id)
+        .then(resp => {
+          console.log(resp.data.budgets)
+          this.budgetList = resp.data.budgets
+        }).catch(err => {
+          console.log(err)
+        })
+    },
     listBUs (id) {
       BU.listBu(id)
       .then((resp) => {
@@ -533,7 +619,6 @@ export default {
     listApprovers () {
       Employee.listEmployeeApprover()
       .then((resp) => {
-        console.log(resp.data)
         this.form.approvers = resp.data
       }).catch((err) => {
         console.log(err.response.data)
@@ -606,6 +691,23 @@ export default {
       this.disableFormBudget = false
     },
     // Save
+    changeStatus (id, status='approve', message='Enviado para aprovação') {
+      if (confirm("Tem certeza que deseja alterar o status?")) {
+        const data = {
+          status: status,
+          current: true,
+          message: message,
+          budget_id: id
+        }
+        StatusBudget.createStatusBudget(data)
+          .then(resp => {
+            console.log(resp.status, resp.data)
+            this.listBudgets()
+          }).catch(err => {
+            console.log(err)
+          })
+      }
+    },  
     getApprover() {
       Employee.listEmployeeByEmail(this.form.bu.approver)
       .then((resp) => {
@@ -761,6 +863,7 @@ export default {
           this.form.totals.receita = 0
           this.form.totals.gastos = 0
           this.form.totals.balanco = 0
+          this.form.totals.percent = 0
           this.form.month.id += 1
 
           this.form.months.forEach((val) => {
@@ -784,6 +887,7 @@ export default {
           //this.form.totals.balanco = "R$ " + ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
           //this.form.totals.gastos = "R$ " + this.form.totals.gastos.toFixed(2)
           //this.form.totals.receita = "R$ " + this.form.totals.receita.toFixed(2)
+          this.form.totals.percent = ((this.form.totals.receita - this.form.totals.gastos).toFixed(2) / this.form.totals.receita).toFixed(2)
           this.form.totals.balanco = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((this.form.totals.receita - this.form.totals.gastos).toFixed(2) || 0)
           this.form.totals.gastos = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.form.totals.gastos.toFixed(2))
           this.form.totals.receita = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.form.totals.receita.toFixed(2))
@@ -791,9 +895,11 @@ export default {
           this.validation.type = false
           this.validation.value = false
           this.alerts.form.success = true
+          this.alerts.form.successText = "Item adicionado com sucesso."
         } else {
           this.validationOneAndTwo()
           this.alerts.form.error = true
+          this.alerts.form.errorText = "Verifique se todos os campos foram preenchidos corretamente."
         }
         setTimeout(() => {
           this.alerts.form.success = false
@@ -923,7 +1029,8 @@ export default {
   },
   data () {
     return {
-      user: null,
+      user: {},
+      role: {},
       disableFormBudget: true,
       disableForm: true,
       field_required: true,
@@ -958,7 +1065,8 @@ export default {
         totals: {
           receita: 0,
           gastos: 0,
-          balanco: 0
+          balanco: 0,
+          percent: 0
         },
         bu: {
           name: 'Selecione',
@@ -1061,7 +1169,8 @@ export default {
           status: {}
         },
         months: {}
-      }
+      },
+      budgetList: []
     }
   },
   async mounted (){
@@ -1075,6 +1184,8 @@ export default {
         this.listBUs(data.user.id)
         this.listApprovers()
         this.user = data.user
+        this.role = data.role
+        this.listBudgets()
       }
     } catch (error) {
       console.log("REQUEST ERROR")
