@@ -1,6 +1,11 @@
+
 module.exports = {
     devServer: {
-      proxy: 'https://rwwv-api.azurewebsites.net',
+      proxy: process.env.PROXY_URL || 'http://localhost:8001',
+      disableHostCheck: true
+    },
+    prdServer: {
+      proxy: process.env.PROXY_URL,
       disableHostCheck: true
     }
   }
