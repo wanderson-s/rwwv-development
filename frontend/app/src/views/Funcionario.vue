@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="permission.is_admin" id="local-main" class="container-fluid p-1 pe-2">
+  <div id="local-main" class="container-fluid p-1 pe-2">
     <DefaultTitle 
       titleText="Funcionários" 
       titleIcon="bi-people-fill"
@@ -229,7 +229,7 @@
     </div>
 
   </div>
-  <DefaultTemplate v-else/>
+  <!-- <DefaultTemplate v-else/> -->
 </template>
 
 <script>
