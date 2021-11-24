@@ -10,7 +10,7 @@
 				title="Tela de inicio"
 			>
 				<i class="bi bi-house-fill"></i>
-				Inicio
+				Início
 			</a>
 
 			<a 

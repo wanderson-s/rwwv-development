@@ -30,7 +30,7 @@
         </div>
 
         <div class="min-len col-12" :class="field_required ? 'required' : ''">
-          <label for="product_family" class="form-label">Familia de Produto</label>
+          <label for="product_family" class="form-label">Família de Produto</label>
           <input
             :disabled="disableForm"
             id="product_family"
@@ -105,7 +105,7 @@
         <thead class="table table-dark border border-white">
           <tr class="border border-secondary">
             <th scope="col">Nome</th>
-            <th scope="col">Familia de Produto</th>
+            <th scope="col">Família de Produto</th>
             <th scope="col">Descrição</th>
             <th scope="col">Criado</th>
             <th scope="col">Atualizado</th>
@@ -238,7 +238,7 @@ export default {
           if (err.response.status != 422){
             this.control.events.alerts.form.errorText = err.response.data.detail
           }else {
-            his.control.events.alerts.form.errorText = 'Erro ao inserir a nova BU. Por favor, cheque os campos e tente novamente.'
+            his.control.events.alerts.form.errorText = 'Erro ao inserir a nova BU. Por favor, verifique os campos e tente novamente.'
           }
           this.disableAlertForm()
         })
@@ -265,7 +265,7 @@ export default {
             if (err.response.status != 422) {
               this.control.events.alerts.form.errorText = err.response.data.detail
             }else {
-              this.control.events.alerts.form.errorText = 'Error ao alterar a BU.'
+              this.control.events.alerts.form.errorText = 'Erro ao alterar a BU.'
             }
             this.disableAlertForm()
           })

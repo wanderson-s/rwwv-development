@@ -176,7 +176,7 @@
             <th scope="col">Simular</th>
             <th scope="col">Criar</th>
             <th scope="col">Aprovar</th>
-            <th scope="col">Ver</th>
+            <th scope="col">Visualizar</th>
             <th scope="col" style="width: 100px;">Ação</th>
             <th scope="col" style="width: 100px;">BUs</th>
           </tr>
@@ -260,11 +260,11 @@ const positionData = {
   }
 }
 const alertMsg = {
-  email: 'Email invalido, o e-mail precisa ter "@taimin.com.br".',
-  password: 'A senha precisa ter mais de 8 caracteres com no minimo 1 letra maiúscula, 1 número e 1 caracter especial.',
-  first_name: 'Nome invalido.',
-  last_name: 'Sobrenome invalido.',
-  birth_date: 'Data de nascimento invalida.',
+  email: 'E-mail inválido, o e-mail precisa ter "@taimin.com.br".',
+  password: 'A senha precisa ter mais de 8 caracteres com no mínimo 1 letra maiúscula, 1 número e 1 caracter especial.',
+  first_name: 'Nome inválido.',
+  last_name: 'Sobrenome inválido.',
+  birth_date: 'Data de nascimento inválida.',
   position: 'Somente os cargos de Analista, Gerente e Diretor são aceitos.'
 }
 
@@ -345,7 +345,7 @@ export default {
           .then(() => {
             console.log("REMOVE EMPLOYEE.")
             this.removeAlert = true
-            this.removeMessage = 'Funcionário removido com sucess.'
+            this.removeMessage = 'Funcionário removido com sucesso.'
             this.listEmployee()
             setTimeout(() => {
               this.removeMessage = ''

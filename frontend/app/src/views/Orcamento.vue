@@ -118,7 +118,7 @@
               :disabled="control.accordion.bu"
             >
               <i class="bi-briefcase-fill pe-2" style="font-size: 20px;" ></i>
-              Selecione a BU, Familia de Produto e Aprovador.
+              Selecione a BU, Família de Produto e Aprovador.
             </button>
           </h2>
           <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" :class="accordion.collTwo" aria-labelledby="panelsStayOpen-headingTwo">
@@ -149,7 +149,7 @@
               </div>
 
               <div class="selected col-12 required">
-                <label for="product_family" class="form-label">Familia de Produto</label>
+                <label for="product_family" class="form-label">Família de Produto</label>
                 <select
                   id="product_family"
                   v-model="form.bu.product_family"
@@ -160,7 +160,7 @@
                   :disabled="disableForm"
                   data-bs-toggle="tooltip" 
                   data-bs-placement="bottom" 
-                  title="Selecione uma familia de produto"
+                  title="Selecione uma família de produto"
                   required
                 >
                   <option :selected="form.bu.product_family"> {{ form.bu.product_family }} </option>
@@ -304,7 +304,7 @@
                     <li class="list-group-item">Impostos ~20%: </li>
                     <li class="list-group-item">Custo: </li>
                     <li class="list-group-item">Valor:  </li>
-                    <li class="list-group-item">Valor liquido: </li>
+                    <li class="list-group-item">Valor líquido: </li>
                   </ul>
                 </div>
               </div>
@@ -399,7 +399,7 @@
 
                           <div style="font-size:18px" >
                             <i class="fa fa-balance-scale" style="font-size:20px"></i> 
-                            Resultado Liquido: {{ convertNumber(form.totals.balanco)}} 
+                            Resultado Líquido: {{ convertNumber(form.totals.balanco)}} 
                             <!-- Porcentagem: {{ form.totals.percent }} % -->
                           </div>
                         </div>
@@ -506,7 +506,7 @@
             <th scope="col">Despesas</th>
             <th scope="col">Receita</th>
             <th scope="col">Impostos Aprox. 20%</th>
-            <th scope="col">Valor liquido</th>
+            <th scope="col">Valor líquido</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
@@ -609,7 +609,7 @@ export default {
       const gasto = this.form.month.type == 'Receita' ? (this.form.month.custo / 100) * (this.form.month.value ? this.form.month.value : 0 ) : 0
       const valor = this.form.month.value ? this.form.month.value : 0
       const liquido = valor ? valor - (imposto + gasto) : 0  
-      console.log("imposto:", imposto, "gasto:", gasto, "valor:", valor, "liquido:", liquido)
+      console.log("imposto:", imposto, "gasto:", gasto, "valor:", valor, "líquido:", liquido)
     },
     saveBudget (id_field) {
       this.getBu().then(

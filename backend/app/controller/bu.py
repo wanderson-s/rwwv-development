@@ -37,7 +37,7 @@ def insert_bu(buss_u: BaseBu, db: Session) -> BaseModelBu:
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A BU e familia de produto já existe.",
+            detail="A BU e família de produto já existem.",
         )
     bu = BusinessUnit(**buss_u.dict(by_alias=False))
     db.add(bu)

@@ -7,7 +7,7 @@
           class="alert alert-danger alert-dismissible fade show"
           role="alert"
         >
-          <strong>E-mail</strong> ou <strong>Senha</strong> invalido.
+          <strong>E-mail</strong> ou <strong>Senha</strong> inválido.
         </div>
         <div class="text-center">
           <img
