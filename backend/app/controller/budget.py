@@ -32,11 +32,6 @@ def select_budgets_by_employee_id(
     employee_id: int, db: Session
 ) -> BaseModelBudgetsEmployee:
     data = db.query(Employee).filter(Employee.id == employee_id).scalar()
-    try:
-        print(data)
-        data.approver = data.approver.approver
-    except:
-        ...
     return data
 
 

@@ -23,7 +23,6 @@ class BaseModelBudget(BaseBudget):
 
 class BaseModelBudgetsEmployee(BaseModelEmployee):
     budget: List[BaseModelBudget] = Field([], alias="budgets")
-    approver: BaseModelEmployee = None
 
     class Config:
         orm_mode = True
