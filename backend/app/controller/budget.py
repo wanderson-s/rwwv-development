@@ -32,6 +32,8 @@ def select_budgets_by_employee_id(
     employee_id: int, db: Session
 ) -> BaseModelBudgetsEmployee:
     data = db.query(Employee).filter(Employee.id == employee_id).scalar()
+    budget = [bud for bud in data.budget if bud.month]
+    data.budget = budget
     return data
 
 
